@@ -1,0 +1,8 @@
+.cache
+.idea
+.coverage
+logme.egg-info/
+*.egg
+__pycache__
+tests/__pycache__
+tests/test_real.py
