@@ -163,7 +163,7 @@ but you want to give the user the freedom to configure the logger. Follow these 
     # if not, a configuration dictionary can also be passed in this format:
     config = {
                 "level": "DEBUG",
-                "format": "%(levelname)s: %(message)s",
+                "format": "{levelname}: {message}",
                 "StreamHandler": {
                     "level": "DEBUG",
                 },
