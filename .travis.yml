@@ -5,3 +5,7 @@ python:
   - 3.6
 
 install:
+  - pip install pytest click
+
+script:
+  - pytest

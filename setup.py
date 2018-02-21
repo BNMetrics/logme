@@ -20,6 +20,7 @@ setup(
     version=version,
     description='package for easy logging',
     author='Luna Chen',
+    url='https://github.com/BNMetrics/logme',
     author_email='luna@bnmetrics.com',
     keywords=['logging', 'cli'],
     python_requires='>=3',

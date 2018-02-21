@@ -7,3 +7,7 @@ logme.egg-info/
 __pycache__
 tests/__pycache__
 tests/test_real.py
+
+build/
+cover/
+dist/
