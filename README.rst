@@ -10,6 +10,7 @@ In A Nutshell
 -------------
 
 If you have a function you want to log, you can do this in your python file:
+
 .. code-block:: python
 
 import logme
@@ -22,6 +23,7 @@ def my_awesome_function(my_arg, logger=None):
 
 
 You can do the same with classes too:
+
 .. code-block:: python
 
 import logme
@@ -39,6 +41,7 @@ Installation
 ------------
 
 To install logme:
+
 .. code-block:: bash
 
     $ pip3 install logme
@@ -50,11 +53,13 @@ Specifications
 Getting Started
 ~~~~~~~~~~~~~~~
 To get logme started, you will need to cd into your project root and type:
+
 .. code-block:: bash
 
     $ logme init
 
 Then you will see a configuration file 'logme.ini', it looks like this:
+
 .. code-block:: ini
 
     [logme]
@@ -80,6 +85,7 @@ simple edit the logme.ini file.
 
 
 To add a config, do this:
+
 .. code-block:: bash
 
     $ logme add my_configuration_here
@@ -97,6 +103,7 @@ Using Logger in Your Project
 
 **logging for functions and methods**
 For functions, you can simple just decorate the function/method in which you want to use the logger, like so:
+
 .. code-block:: python
 
 @logme.log(config='my_custom_conf', name='custom_test_logger')
@@ -110,6 +117,7 @@ def dummy_function_custom(name, logger=None):
 
 **logging for classes**
 For classes, you can also use the decorator, and an attribute *self.logger* will be available.
+
 .. code-block:: python
 
 @logme.log
@@ -135,12 +143,14 @@ but you want to give the user the freedom to configure the logger. Follow these 
 
 1. Have only the NullHandler active in your project root logme.ini file.
 2. In your __init__.py file, make a module logger, like so:
+
 .. code-block:: python
 
 logger = logme.log(scope='module')
 
 3. Import this logger throughout your project.
 4. When user need to see the logging messages, they can then import the logger and change the configuration.
+
 .. code-block:: python
 
 from your_project import logger
