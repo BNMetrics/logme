@@ -12,3 +12,7 @@ class InvalidOption(Exception):
 
 class InvalidConfig(Exception):
     """Used when invalid configuration is passed"""
+
+
+class DuplicatedHandler(Exception):
+    """Used when an identical handler is being added on to a logger"""

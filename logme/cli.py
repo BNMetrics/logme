@@ -1,13 +1,13 @@
 import click
 
 from pathlib import Path
-from contextlib import contextmanager
 from collections import defaultdict
 from configparser import ConfigParser
+from contextlib import contextmanager
 
-from .exceptions import LogmeError
-from .utils import dict_to_conf
 from .config import read_config
+from .exceptions import LogmeError
+from .utils import dict_to_conf, ensure_dir
 
 _command_options = {
     'project_root': click.option('--project-root', '-p',
@@ -21,8 +21,7 @@ _command_options = {
                               help='the logging formatter',
                               default='{asctime} - {name} - {levelname} - {message}'),
     'log_path': click.option('--log-path', '-lp',
-                             help='the directory where you want to store your log file, '
-                                  'the log file will be named as *logger_name.log*',
+                             help='the filename where you want to store your log',
                              default=None),
 }
 
@@ -85,7 +84,7 @@ def init(ctx, project_root, mkdir, level, formatter, log_path):
     Command to set up a logme config file with master logger configuration
 
     """
-    conf_content = get_tpl('logme', level=level, formatter=formatter, log_path=log_path)
+    conf_content = get_tpl('logme', level=level, formatter=formatter, filename=log_path)
 
     config = get_config(conf_content)
 
@@ -115,7 +114,7 @@ def add(ctx, project_root, name, level, formatter, log_path):
 
         validate_conf(name, logme_conf)
 
-        conf_content = get_tpl(name, level=level, formatter=formatter, log_path=log_path)
+        conf_content = get_tpl(name, level=level, formatter=formatter, filename=log_path)
         config = get_config(conf_content)
 
         # check if section already exist
@@ -203,7 +202,7 @@ def get_tpl(name: str, **kwargs: str) -> dict:
     Get the template dict for the logger configuration
 
     :param name: str, name of the logger
-    :param kwargs: keys = ['level', 'formatter', 'log_path']
+    :param kwargs: keys = ['level', 'formatter', 'filename']
 
     :return: dict
     """
@@ -216,13 +215,16 @@ def get_tpl(name: str, **kwargs: str) -> dict:
             'level': 'DEBUG',
             'formatter': None,
             'StreamHandler': {
+                'active': True,
                 'level': 'DEBUG',
             },
             'FileHandler': {
+                'active': False,
                 'level': 'DEBUG',
-                'log_path': None,
+                'filename': 'mylogpath/foo.log',
             },
             'NullHandler': {
+                'active': False,
                 'level': 'NOTSET'
             },
         }
@@ -242,7 +244,7 @@ def map_template(template: dict, input_: dict) -> None:
     *This updates the original dict passed in*
 
     :param template: dict
-    :param input_: keys = ['level', 'formatter', 'log_path']
+    :param input_: keys = ['level', 'formatter', 'filename']
     """
     for k, v in template.items():
         config_val = input_.get(k)
@@ -272,8 +274,6 @@ def check_options(**kwargs):
                          f"please specify the following: {allowed_levels}")
 
     # Make the directory and the log file
-    if kwargs.get('log_path'):
-        log_path_abs = Path(kwargs['log_path']).resolve()
-        if not log_path_abs.exists():
-            log_path_abs.mkdir(parents=True, exist_ok=True)
+    if kwargs.get('filename'):
+        ensure_dir(kwargs['filename'])
 

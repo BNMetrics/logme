@@ -71,15 +71,16 @@ class TestCli:
     def test_init_chained_options(self, tmpdir):
 
         tmp = tmpdir.join('my_project')
-
+        
         self.runner.invoke(cli, ['init', '-p', tmp,
-                                 '-mk', '-lp', '/var/log/dummy.log'])
+                                 '-mk', '-lp', tmp.join('var/log/dummy.log')])
 
         conf = read_config(tmp.join('logme.ini'))
 
         fh_conf = conf.get('logme', 'FileHandler')
 
-        assert conf_item_to_dict(fh_conf)['log_path'] == '/var/log/dummy.log'
+        assert conf_item_to_dict(fh_conf)['filename'] == tmp.join('var/log/dummy.log')
+        assert set(conf_item_to_dict(fh_conf).keys()) == {'active', 'level', 'filename'}
 
     def test_init_raise(self, tmpdir):
 
@@ -197,7 +198,7 @@ class TestCli:
     def test_get_tpl(self, tmpdir):
 
         log_path = tmpdir.join('log_dir')
-        template = get_tpl('test_log', log_path=log_path, level='INFO',
+        template = get_tpl('test_log', filename=log_path, level='INFO',
                            formatter='{name} : {message}')
 
         assert isinstance(template, dict)
@@ -252,12 +253,12 @@ class TestCli:
 
         assert check_options(level=level) is None
 
-    def test_check_option_log_path(self, tmpdir):
+    def test_check_option_filename(self, tmpdir):
 
-        log_file = tmpdir.join('blah')
-        check_options(log_path=log_file)
+        log_file = tmpdir.join('blah').join('filename.log')
+        check_options(filename=log_file)
 
-        assert Path(log_file).exists()
+        assert Path(log_file).parent.exists()
 
     def test_check_option_raise(self):
 

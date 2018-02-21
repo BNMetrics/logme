@@ -3,7 +3,7 @@ import pytest
 from pathlib import Path
 
 from logme.exceptions import InvalidOption
-from logme.utils import (dict_to_conf, conf_to_dict,
+from logme.utils import (dict_to_conf, conf_to_dict, ensure_dir, check_scope,
                          conf_item_to_dict, strip_blank_recursive, cd)
 
 
@@ -20,7 +20,7 @@ class TestPackageUtils:
             },
             "FileHandler": {
                 "level": "DEBUG",
-                "log_path": "/var/log/mylog.log",
+                "filename": "/var/log/mylog.log",
             },
         }
 
@@ -29,7 +29,7 @@ class TestPackageUtils:
             "format": "%(levelname)s: %(message)s",
             "StreamHandler": "\nlevel: DEBUG",
             "FileHandler": f"\nlevel: DEBUG"
-                           f"\nlog_path: /var/log/mylog.log",
+                           f"\nfilename: /var/log/mylog.log",
         }
 
         cls.conf_section = [(k, v) for k, v in cls.sample_conf_dict.items()]
@@ -45,7 +45,7 @@ class TestPackageUtils:
                               pytest.param("\n  type  : option    \n  second_val : my_val \n",
                                            id='config option with blank space after new line, '
                                               'and new line after last option'),
-                              pytest.param("\ntype:option\nsecond_val:my_val",
+                              pytest.param("\ntype: option \nsecond_val: my_val ",
                                            id='config option with no blank space')])
     def test_conf_item_to_dict(self, parse_option):
         expected_dict = {'type': 'option',
@@ -103,6 +103,27 @@ class TestPackageUtils:
     def test_strip_blank_recursive_rase(self, parse_arg):
         with pytest.raises(ValueError):
             strip_blank_recursive(parse_arg)
+
+    @pytest.mark.parametrize('subpath, path_type, expected_path',
+                             [pytest.param('test/my_test_dir', 'current', 'test/my_test_dir',
+                                           id='make sure the exact dir exists'),
+                              pytest.param('foo/my_dir/myfile.txt', 'parent', 'foo/my_dir',
+                                           id='make sure the parent dir exists')])
+    def test_ensure_dir(self, tmpdir, subpath, path_type, expected_path):
+        dir_path = Path(tmpdir) / Path(subpath)
+
+        ensure_dir(dir_path, path_type=path_type)
+
+        assert (Path(tmpdir) / Path(expected_path)).exists()
+
+    def test_ensure_dir_raise(self, tmpdir):
+        with pytest.raises(InvalidOption):
+            ensure_dir(tmpdir, path_type='cwd')
+
+    @pytest.mark.parametrize('scope, options', [pytest.param('function', ['function', 'class']),
+                                                pytest.param('class', ['function', 'class', 'module', 'blah'])])
+    def test_check_scope_function(self, scope, options):
+        assert check_scope(scope, options) is True
 
     def test_cd(self, tmpdir):
 

@@ -1,10 +1,11 @@
-
 import os
-from typing import List
+import ast
+from typing import List, Union
 
+from pathlib import Path
 from contextlib import contextmanager
 
-from .exceptions import InvalidOption
+from .exceptions import InvalidOption, LogmeError
 
 
 def conf_to_dict(conf_section: List[tuple]) -> dict:
@@ -27,7 +28,7 @@ def conf_item_to_dict(parse_option: str) -> dict:
     """
     try:
         str_split = parse_option.strip().split('\n')
-        mapped_list = list(map(lambda x: x.split(':'), str_split))
+        mapped_list = list(map(lambda x: x.split(': '), str_split))
 
         strip_blank_recursive(mapped_list)
 
@@ -61,7 +62,7 @@ def dict_to_conf(parse_dict: dict) -> dict:
     return flattened
 
 
-def strip_blank_recursive(nested_list):
+def strip_blank_recursive(nested_list: list):
     """
     Strip blank space or newline characters recursively for a nested list
 
@@ -75,7 +76,48 @@ def strip_blank_recursive(nested_list):
         if isinstance(v, list):
             strip_blank_recursive(v)
         elif isinstance(v, str):
-            nested_list[i] = v.strip()
+            if v.strip() in ['True', 'False', 'None']:
+                val_ = ast.literal_eval(v.strip())
+            else:
+                val_ = v.strip()
+
+            nested_list[i] = val_
+
+
+def ensure_dir(dir_path: Union[Path, str], path_type: str='parent'):
+    """
+    Ensure the existence of the directory,
+
+    :param dir_path: the path to be ensured
+    :param path_type: current - ensure the passed in directory exists, typically used when
+
+
+    """
+    path_mapping = {
+        'current': Path(dir_path).resolve(),
+        'parent': Path(dir_path).parent.resolve()
+    }
+
+    try:
+        dir_abs = path_mapping[path_type]
+
+        if not dir_abs.exists():
+            dir_abs.mkdir(parents=True, exist_ok=True)
+    except KeyError:
+        raise InvalidOption(f"{path_type} is not a valid option, please pass in either 'parent' or 'current'")
+
+
+def check_scope(scope: str, options: list) -> bool:
+    """
+    check if the scope passed is within the options.
+    Used both in logme/__init__.py and providers.LogDecorator
+
+    """
+    if scope not in options:
+        raise LogmeError(f"scope '{scope}' is not supported, "
+                         f"please use one of {options}")
+
+    return True
 
 
 @contextmanager

@@ -1,25 +1,35 @@
 from pathlib import Path
-from configparser import ConfigParser
+from configparser import ConfigParser, NoSectionError
 
 from typing import Union
 
+from .utils import conf_to_dict
 from .exceptions import InvalidConfig
 
 
-# TODO: Rewrite!!!
-def get_config_content(decorated_file_path):
-    # return {
-    #     'level': 'INFO',
-    #     'formatter': '{levelname}: {asctime} - {name} - {module}::{funcName} - {message}',
-    #     'file': '/path/to/my/file.ini',
-    #     'StreamHandler': True
-    # }
+def get_config_content(caller_file_path: Union[str, Path], name: str=None) -> dict:
+    """
+    Get the config section as a dictionary
 
-    init_file_path = get_ini_file_path(decorated_file_path)
+    :param caller_file_path: file path of the caller, __file__
+    :param name: the name(section in logme.ini) of the config to be passed. (optional, default: 'logme')
+
+    :return: logger configuration dictionary
+    """
+
+    init_file_path = get_ini_file_path(caller_file_path)
 
     config = read_config(init_file_path)
-    print(dict(config.items('logme')))
-    return dict(config.items('logme'))
+
+    try:
+        if name:
+            conf_section = config.items(name)
+        else:
+            conf_section = config.items('logme')
+
+        return conf_to_dict(conf_section)
+    except NoSectionError:
+        raise InvalidConfig(f"'{name}' is not a valid configuration in {init_file_path}")
 
 
 def read_config(file_path: Union[str, Path]) -> ConfigParser:
@@ -45,13 +55,14 @@ def get_ini_file_path(caller_file_path: Union[str, Path]) -> Path:
     """
     Get the logme.ini config file path
 
-    :param caller_file_path: file path of the caller, callable.__name__
+    :param caller_file_path: file path of the caller, callable.__file__
 
     :return: Path object of the logme.ini
     """
     conf_path = Path(caller_file_path).parent / 'logme.ini'
 
-    if caller_file_path == Path('/').resolve():
+    if caller_file_path in [Path(Path(caller_file_path).root).resolve(),
+                            Path(caller_file_path).home().resolve()]:
         raise ValueError("logme.ini does not exist, please use 'logme init' command in your project root")
 
     if not conf_path.exists():
