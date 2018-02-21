@@ -10,7 +10,7 @@ In A Nutshell
 -------------
 
 If you have a function you want to log, you can do this in your python file:
-.. code-block::python
+.. code-block:: python
 
 import logme
 
