@@ -2,6 +2,7 @@
 .idea
 .coverage
 .pytest_cache
+coverage.xml
 logme.egg-info/
 *.egg
 __pycache__

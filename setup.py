@@ -12,6 +12,8 @@ requires = [
     'click',
 ]
 
+with open('README.rst', 'r', encoding='utf-8') as f:
+    readme = f.read()
 
 setup(
     name='logme',
@@ -19,6 +21,7 @@ setup(
     install_requires=requires,
     version=version,
     description='package for easy logging',
+    long_description=readme,
     author='Luna Chen',
     url='https://github.com/BNMetrics/logme',
     author_email='luna@bnmetrics.com',

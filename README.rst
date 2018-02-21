@@ -5,6 +5,8 @@ Logme - Python Logging Made Easy
 .. image:: https://travis-ci.org/BNMetrics/logme.svg?branch=master
     :target: https://travis-ci.org/BNMetrics/logme
 
+.. image:: https://codecov.io/gh/BNMetrics/logme/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/BNMetrics/logme
 
 
 Logme is a Python package that makes logging simple and robost. If you have found
