@@ -1,0 +1,7 @@
+language: python
+sudo: false
+
+python:
+  - 3.6
+
+install:
