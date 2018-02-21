@@ -112,6 +112,7 @@ def dummy_function_custom(name, logger=None):
 
     return logger, name
 
+
 *Be sure to pass in the "logger" as a keyword argument, and you can assign it to None when defining the function*
 
 
