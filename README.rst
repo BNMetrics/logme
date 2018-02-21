@@ -2,6 +2,9 @@
 Logme - Python Logging Made Easy
 ================================
 
+.. image:: https://badge.fury.io/py/logme.svg
+    :target: https://badge.fury.io/py/logme
+
 .. image:: https://travis-ci.org/BNMetrics/logme.svg?branch=master
     :target: https://travis-ci.org/BNMetrics/logme
 
