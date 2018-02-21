@@ -11,30 +11,28 @@ In A Nutshell
 
 If you have a function you want to log, you can do this in your python file:
 
-.. code:: python
+.. code-block:: python
+
+    import logme
 
 
-import logme
-
-
-@logme.log
-def my_awesome_function(my_arg, logger=None):
-    logger.info('this is my log message')
-    """rest of the function"""
-
+    @logme.log
+    def my_awesome_function(my_arg, logger=None):
+        logger.info('this is my log message')
+        """rest of the function"""
 
 
 You can do the same with classes too:
 
 .. code-block:: python
 
-import logme
+    import logme
 
 
-@logme.log
-class MyAwesomeClass:
-    def my_function(self, my_arg):
-        self.logger.info('this is my log message')
+    @logme.log
+    class MyAwesomeClass:
+        def my_function(self, my_arg):
+            self.logger.info('this is my log message')
 
 
 
@@ -109,11 +107,11 @@ For functions, you can simple just decorate the function/method in which you wan
 
 .. code-block:: python
 
-@logme.log(config='my_custom_conf', name='custom_test_logger')
-def dummy_function_custom(name, logger=None):
-    logger.info('test function logger with custom params')
+    @logme.log(config='my_custom_conf', name='custom_test_logger')
+    def dummy_function_custom(name, logger=None):
+        logger.info('test function logger with custom params')
 
-    return logger, name
+        return logger, name
 
 *Be sure to pass in the "logger" as a keyword argument, and you can assign it to None when defining the function*
 
@@ -123,10 +121,10 @@ For classes, you can also use the decorator, and an attribute *self.logger* will
 
 .. code-block:: python
 
-@logme.log
-class MyAwesomeClass:
-    def my_function(self, my_arg):
-        self.logger.info('this is my log message')
+    @logme.log
+    class MyAwesomeClass:
+        def my_function(self, my_arg):
+            self.logger.info('this is my log message')
 
 
 
@@ -136,7 +134,7 @@ Logging modules is slightly different from classes and functions, but it's just 
 
 .. code-block:: python
 
-module_logger = logme.log(scope='module', name='my_module_logger')
+    module_logger = logme.log(scope='module', name='my_module_logger')
 
 
 Advanced Usage - Delegation
@@ -149,32 +147,32 @@ but you want to give the user the freedom to configure the logger. Follow these 
 
 .. code-block:: python
 
-logger = logme.log(scope='module')
+    logger = logme.log(scope='module')
 
 3. Import this logger throughout your project.
 4. When user need to see the logging messages, they can then import the logger and change the configuration.
 
 .. code-block:: python
 
-from your_project import logger
+    from your_project import logger
 
-# assuming if the importer also has logme installed and initialized
-logger.reset_configuration(config_name='my_own_logger')
+    # assuming if the importer also has logme installed and initialized
+    logger.reset_configuration(config_name='my_own_logger')
 
-# if not, a configuration dictionary can also be passed in this format:
-config = {
-            "level": "DEBUG",
-            "format": "%(levelname)s: %(message)s",
-            "StreamHandler": {
+    # if not, a configuration dictionary can also be passed in this format:
+    config = {
                 "level": "DEBUG",
-            },
-            "FileHandler": {
-                "level": "DEBUG",
-                "filename": "/var/log/mylog.log",
-            },
-        }
+                "format": "%(levelname)s: %(message)s",
+                "StreamHandler": {
+                    "level": "DEBUG",
+                },
+                "FileHandler": {
+                    "level": "DEBUG",
+                    "filename": "/var/log/mylog.log",
+                },
+            }
 
-}
-logger.reset_configuration(config=config)
+    }
+    logger.reset_configuration(config=config)
 
 
