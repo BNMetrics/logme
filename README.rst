@@ -13,6 +13,7 @@ If you have a function you want to log, you can do this in your python file:
 
 .. code-block:: python
 
+
 import logme
 
 
@@ -20,6 +21,7 @@ import logme
 def my_awesome_function(my_arg, logger=None):
     logger.info('this is my log message')
     """rest of the function"""
+
 
 
 You can do the same with classes too:
@@ -33,6 +35,7 @@ import logme
 class MyAwesomeClass:
     def my_function(self, my_arg):
         self.logger.info('this is my log message')
+
 
 
 pretty nice right? :)
