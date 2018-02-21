@@ -3,8 +3,8 @@ from pathlib import Path
 
 from setuptools import setup, find_packages
 
-module_path = Path(__file__) / Path('logme/__init__.py')
-logme_module = SourceFileLoader('logme', module_path).load_module()
+module_path = Path(__file__).parent / Path('logme/__init__.py')
+logme_module = SourceFileLoader('logme', str(module_path)).load_module()
 
 version = logme_module.__version__
 
