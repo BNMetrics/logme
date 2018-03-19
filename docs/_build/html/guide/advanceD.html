@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Advanced Usage &mdash; Logme 1.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Logme 1.0.1 documentation" href="../index.html"/>
+        <link rel="prev" title="Quickstart" href="quickstart.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Logme
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cli-options">CLI options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#option-that-applies-to-all-commands">Option that applies to all commands:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-that-applies-to-logme-init-and-logme-add-config-name">Option that applies to ‘logme init’ and ‘logme add config_name’:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#logger-delegation">Logger Delegation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#i-using-logme-config-name">I: Using logme config name:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ii-using-a-config-dictionary">II: Using a config dictionary:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Logme</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Advanced Usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/guide/advanced.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="advanced-usage">
+<span id="advanced"></span><h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cli-options">
+<h2>CLI options<a class="headerlink" href="#cli-options" title="Permalink to this headline">¶</a></h2>
+<hr class="docutils" />
+<p>In addition to the basic CLI commands showing in the <a class="reference external" href="http://127.0.0.1:8000/guide/quickstart.html#configurations">previous section</a>,
+there are options you can add to the commands which allow you to get your configuration faster.</p>
+<div class="section" id="option-that-applies-to-all-commands">
+<h3>Option that applies to all commands:<a class="headerlink" href="#option-that-applies-to-all-commands" title="Permalink to this headline">¶</a></h3>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">–project_root, -p:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">Alternative to cd into the project root before using ‘logme ini’. You can add this flag to specify the project root.
+This is where you want the logme.ini file to be located. Can be either relative or absolute path.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you use the -p flag with <strong>logme init</strong>, and if the destination directory does not exist,
+you can add a ‘<em>–mkdir</em>’ or ‘<em>-mk</em>’ flag to create the directory. ‘<em>–mkdir/-mk</em>’ flag is only available for <strong>logme init</strong>.</p>
+</div>
+</div>
+<div class="section" id="option-that-applies-to-logme-init-and-logme-add-config-name">
+<h3>Option that applies to ‘logme init’ and ‘logme add config_name’:<a class="headerlink" href="#option-that-applies-to-logme-init-and-logme-add-config-name" title="Permalink to this headline">¶</a></h3>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">–level, -lvl:</th><td class="field-body">Master level for the logger configuration.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">–formatter, -f:</th><td class="field-body">Master level formatter of the logger configuration.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">–log-path, -lp:</th><td class="field-body">If you use a FileHandler for your logger, this is the log file path for the handler. This must be absolute path.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="logger-delegation">
+<h2>Logger Delegation<a class="headerlink" href="#logger-delegation" title="Permalink to this headline">¶</a></h2>
+<hr class="docutils" />
+<p>If you are making a distributed or installable package, and you still want to include logging.
+You can easy do this with logme package.</p>
+<p>The following are the simple steps:</p>
+<ol class="arabic simple">
+<li>Have only the <strong>NullHandler</strong> set to ‘<em>active</em>’ in your project root logme.ini file. This
+will ensure logging messages do not get output unless the configuration is changed.</li>
+<li>In your __init__.py file, make a module logger, like so:</li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">logger</span> <span class="o">=</span> <span class="n">logme</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;module&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>Import this logger throughout your project. Take note that this means the whole project will be
+logged with this single logger.</li>
+<li>If user need to see the logging messages, they can then import the logger and change the configuration.
+There are two ways to reset the logging configuration, see below:</li>
+</ol>
+<div class="section" id="i-using-logme-config-name">
+<h3>I: Using logme config name:<a class="headerlink" href="#i-using-logme-config-name" title="Permalink to this headline">¶</a></h3>
+<p>Assuming if the user of the package also have initialized in their project root, you can reset the configuration
+by directly passing in the configuration name with <strong>config_name</strong> argument.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">your_project</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="n">logger</span><span class="o">.</span><span class="n">reset_configuration</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s1">&#39;my_own_logger&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ii-using-a-config-dictionary">
+<h3>II: Using a config dictionary:<a class="headerlink" href="#ii-using-a-config-dictionary" title="Permalink to this headline">¶</a></h3>
+<p>Configuration can also be passed in as a dictionary with <strong>config</strong> argument.</p>
+<p><strong>config structure:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;handler1&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="c1"># Optional</span>
+        <span class="s1">&#39;formatter&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="c1"># Optional</span>
+        <span class="s1">&#39;handler_arg1&#39;</span><span class="p">:</span> <span class="s1">&#39;mixed&#39;</span><span class="p">,</span> <span class="c1"># This is the argument you pass into specific handler</span>
+        <span class="s1">&#39;handler_arg2&#39;</span><span class="p">:</span> <span class="s1">&#39;mixed&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">your_project</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;{levelname}: {message}&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;StreamHandler&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;FileHandler&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;/var/log/mylog.log&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+<span class="p">}</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">reset_configuration</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Luna Chen.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
