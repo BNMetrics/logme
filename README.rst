@@ -149,7 +149,8 @@ Logging modules is slightly different from classes and functions, but it's just 
 
 
 Advanced Usage - Delegation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
+
 Assuming you are making a distributed package, and you still want to include logging,
 but you want to give the user the freedom to configure the logger. Follow these steps:
 

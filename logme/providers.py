@@ -135,6 +135,11 @@ class LogmeLogger:
 
         return logger
 
+    @property
+    def handlers(self):
+        # TODO: map handlers to a name:object dict
+        return self.handlers
+
     def _set_master_properties(self):
         master_properties = {
             'master_formatter': logging.Formatter(self.config['formatter'], style='{'),
