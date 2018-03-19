@@ -23,7 +23,7 @@ import logme
 from datetime import datetime
 
 project = 'Logme'
-copyright = '{}, Luna Chen'.format()
+copyright = '{}, Luna Chen'.format(str(datetime.now().year))
 author = 'Luna Chen'
 
 # The short X.Y version
