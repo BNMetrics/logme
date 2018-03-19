@@ -138,7 +138,7 @@ class LogmeLogger:
     @property
     def handlers(self):
         # TODO: map handlers to a name:object dict
-        return self.handlers
+        return self.logger.handlers
 
     def _set_master_properties(self):
         master_properties = {
