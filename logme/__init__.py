@@ -51,7 +51,7 @@ def _get_logger_decorator(callable_: callable, config: str=None, name: str=None)
         return LogDecorator(callable_, scope='function',
                             config=config, name=name)
 
-    raise LogmeError("'{}' must be a 'class' or a 'function'.".format(callable_))
+    raise LogmeError("'{callable_}' must be a 'class' or a 'function'.")
 
 
 __version__ = '1.0.3'
