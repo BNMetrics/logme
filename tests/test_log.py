@@ -95,5 +95,6 @@ def test_change_logging_config(file_config_content):
 # Tests for others, _get_logger_decorator()
 # ---------------------------------------------------------------------------
 def test_get_logger_decorator_raise():
-    with pytest.raises(LogmeError):
+    with pytest.raises(LogmeError) as e_info:
         _get_logger_decorator('hello')
+
