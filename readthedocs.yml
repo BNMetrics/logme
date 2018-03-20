@@ -8,4 +8,4 @@ python:
     version: 3.6
 
 python:
-   pip_install: true
+   setup_py_install: true
