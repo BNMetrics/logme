@@ -15,7 +15,6 @@
 import os
 import sys
 
-# Insert logme's path into the system
 sys.path.insert(0, os.path.abspath('..'))
 
 
