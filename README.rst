@@ -11,6 +11,9 @@ Logme - Python Logging Made Easy
 .. image:: https://codecov.io/gh/BNMetrics/logme/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/BNMetrics/logme
 
+.. image:: https://readthedocs.org/projects/logme/badge/?version=latest
+    :target: http://logme.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 Logme is a Python package that makes logging simple and robost. If you have found
 logging in Python not so straight forward, download this package and give it a try! :)
