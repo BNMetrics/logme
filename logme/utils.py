@@ -78,7 +78,7 @@ def strip_blank_recursive(nested_list: list):
         elif isinstance(v, str):
             try:
                 val_ = ast.literal_eval(v.strip())
-            except (ValueError, SyntaxError):
+            except (ValueError, SyntaxError):  # SyntaxError raised when passing in "{asctime}::{message}"
                 val_ = v.strip()
 
             nested_list[i] = val_

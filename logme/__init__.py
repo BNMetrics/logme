@@ -54,4 +54,4 @@ def _get_logger_decorator(callable_: callable, config: str=None, name: str=None)
     raise LogmeError("'{callable_}' must be a 'class' or a 'function'.")
 
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
