@@ -140,7 +140,7 @@ without having to configure each logger manually in your code.
     * **scope**: the scope of your logger: *class*, *function* or *module*. You can omit this parameter for class and
       function. **this is required for module level logger**
     * **config**: the name of logging config specified in logme.ini, default would be the *logme* config
-    * **name**: the name of the logger, default would be the __name__ of the file where you are calling logme.ini
+    * **name**: the name of the logger, default would be the __name__ of the file where you are calling logme.log, or using the logme.log decorator.
 
 
 

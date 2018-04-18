@@ -9,6 +9,7 @@ from logme.utils import (dict_to_conf, conf_to_dict, ensure_dir, check_scope,
 
 class TestPackageUtils:
 
+
     @classmethod
     def setup(cls):
 

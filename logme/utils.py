@@ -10,9 +10,9 @@ from .exceptions import InvalidOption, LogmeError
 
 def conf_to_dict(conf_section: List[tuple]) -> dict:
     """
-    Converting the config section to a dictionary format
+    Converting the Configparser section to a dictionary format
 
-    :param conf_section: values from config.items('section')
+    :param conf_section: values from config.items('section') or config['section']
     """
 
     return {i[0]: conf_item_to_dict(i[1]) if '\n' in i[1] else i[1]
@@ -76,9 +76,9 @@ def strip_blank_recursive(nested_list: list):
         if isinstance(v, list):
             strip_blank_recursive(v)
         elif isinstance(v, str):
-            if v.strip() in ['True', 'False', 'None']:
+            try:
                 val_ = ast.literal_eval(v.strip())
-            else:
+            except (ValueError, SyntaxError):
                 val_ = v.strip()
 
             nested_list[i] = val_

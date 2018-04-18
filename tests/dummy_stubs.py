@@ -45,3 +45,12 @@ module_logger = logme.log(scope='module', name='change_config')
 def log_this():
     module_logger.info('change my config.')
     return module_logger
+
+
+@logme.log
+def dummy_func_change_level(logger=None):
+    import logging
+    logger.master_level = logging.ERROR
+    logger.info('blah')
+
+    return logger

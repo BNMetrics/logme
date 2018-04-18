@@ -62,7 +62,6 @@ def test_module_logger(caplog, scope):
 
 def test_class_with_method(caplog):
     obj = DummyClassWithMethods()
-
     obj.method_one()
 
     assert caplog.record_tuples[0] == ('class_with_methods', 10, 'test class with method logging message.')
@@ -91,10 +90,22 @@ def test_change_logging_config(file_config_content):
         assert file.readline() == "change_config::change my config.\n"
 
 
+def test_change_logging_master_level(capsys):
+    logger = dummy_func_change_level()
+
+    assert logger.level == 40
+
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
+
+
 # ---------------------------------------------------------------------------
 # Tests for others, _get_logger_decorator()
 # ---------------------------------------------------------------------------
 def test_get_logger_decorator_raise():
     with pytest.raises(LogmeError) as e_info:
         _get_logger_decorator('hello')
+
+    
 
