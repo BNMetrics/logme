@@ -1,8 +1,7 @@
 import pytest
 
 from logme.config import get_config_content
-from logme.exceptions import MisMatchScope, LogmeError
-from logme.providers import LogDecorator, ModuleLogger, LogmeLogger
+from logme.providers import LogProvider, ModuleLogger, LogmeLogger
 
 
 def dummy_func(*args, **kwargs):
@@ -23,41 +22,15 @@ class DummyClass:
                                        'dummy_logger2', 'my_test_logger',
                                        id='custom config name and logger name'),
                           ])
-def test_log_decorator_function(caplog, args, logger_name, config_name):
+def test_log_decorator_function(args, logger_name, config_name):
     global dummy_func
 
-    dummy = LogDecorator(dummy_func, scope='function', **args)
+    provider = LogProvider(dummy_func, **args)
 
-    logger = dummy('blah')
+    logger = provider.logger
 
     assert logger.name == logger_name
     assert logger.config == get_config_content(__file__, name=config_name)
-    assert caplog.record_tuples[0] == (logger_name, 20, 'my dummy function message.')
-
-
-@pytest.mark.parametrize('input_scope, exception', [pytest.param('class', MisMatchScope, id='Mismatching scope raises'),
-                                                    pytest.param('foo', LogmeError, id='bogus scope being passed')
-                                                    ])
-def test_log_decorator_function_raise(input_scope, exception):
-    global dummy_func
-
-    with pytest.raises(exception):
-        dummy = LogDecorator(dummy_func, scope=input_scope)
-        dummy()
-
-
-def test_log_decorator_class():
-    dummy_class = LogDecorator(DummyClass, scope='class')
-    obj = dummy_class()
-
-    assert hasattr(obj, 'logger')
-    assert isinstance(obj.logger, LogmeLogger)
-
-
-def test_log_decorator_class_raise():
-    with pytest.raises(MisMatchScope):
-        dummy_class = LogDecorator(DummyClass, scope='function')
-        obj = dummy_class()
 
 
 def test_module_logger(caplog):

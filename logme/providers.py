@@ -1,5 +1,4 @@
 import inspect
-from functools import update_wrapper, partial
 
 from typing import Callable
 
@@ -7,22 +6,20 @@ import logging
 from logging import handlers as logging_handlers
 
 from .config import get_config_content
-from .utils import ensure_dir, check_scope
-from .exceptions import MisMatchScope, InvalidOption, InvalidConfig, DuplicatedHandler
+from .utils import ensure_dir
+from .exceptions import InvalidOption, InvalidConfig, DuplicatedHandler
 
 
-class LogDecorator:
+class LogProvider:
     """
-        Behaves as a decorator to class/function/method.
+    Get a LogmeLogger object for decorated classes and functions/methods
 
-            - Inject a keyword arg to function/method
-            - Inject an attribute 'logger' to a class based decorator
+    *LogmeLogger object is provided as a object property of this LogProvider*
     """
 
-    def __init__(self, decorated: Callable, scope: str=None,
-                 config: str=None, name: str=None):
+    def __init__(self, decorated: Callable, config: str=None, name: str=None):
         """
-        Initialization of Logger decorator, all the optional arguments should be passed from logme.log()
+        Initialization of Logger Provider, all the optional arguments should be passed from logme.log()
 
         Required: scope
         Optional: config, name.
@@ -30,42 +27,17 @@ class LogDecorator:
                 *given logme.ini file exists in root dir*)
 
         """
-        check_scope(scope, ['class', 'function'])
 
         self.decorated = decorated
-        self.scope = scope
 
         # Get the module object of the decorated object
         module_obj = inspect.getmodule(self.decorated)
 
         logger_name = name if name else module_obj.__name__
+
         config_dict = get_config_content(module_obj.__file__, name=config)
 
         self.logger = LogmeLogger(logger_name, config_dict)
-
-    def __get__(self, obj, _):
-        """
-        Descriptor for methods.
-
-        - if self.decorated is a bound method of an object
-        """
-        return partial(self.__call__, obj)
-
-    def __call__(self, *args, **kwargs):
-        # Update the LogDecorator class to look like the decorated object
-        update_wrapper(self, self.decorated)
-
-        if self.scope == 'class' and inspect.isclass(self.decorated):
-            self.decorated.logger = self.logger
-            return self.decorated(*args, **kwargs)
-        elif self.scope == 'function' and inspect.isfunction(self.decorated):
-            return self.decorated(*args, **kwargs, logger=self.logger)
-
-        raise MisMatchScope(f'{self.decorated.__name__} is not a {self.scope} scope')
-
-    def __repr__(self):
-        # Alter the string representation of LogDecorator class to look like the decorated object
-        return repr(self.decorated)
 
 
 class ModuleLogger:
@@ -134,11 +106,6 @@ class LogmeLogger:
         logger.setLevel(self.master_level)
 
         return logger
-
-    @property
-    def handlers(self):
-        # TODO: map handlers to a name:object dict
-        return self.logger.handlers
 
     def _set_master_properties(self):
         master_properties = {

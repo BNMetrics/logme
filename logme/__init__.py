@@ -6,12 +6,15 @@
 """
 
 import inspect
+from typing import Callable
+
+from functools import wraps
 
 from .cli import cli
 
 from .utils import check_scope
-from .exceptions import LogmeError
-from .providers import LogDecorator, ModuleLogger
+from .exceptions import LogmeError, MisMatchScope
+from .providers import LogProvider, ModuleLogger
 
 
 def log(scope: str=None, config: str=None, name: str=None):
@@ -23,7 +26,6 @@ def log(scope: str=None, config: str=None, name: str=None):
     :param name: name of the logger
 
     """
-
     if isinstance(scope, str) and scope.lower() == 'module':
         return ModuleLogger(frame=2, config=config, name=name)
 
@@ -34,24 +36,38 @@ def log(scope: str=None, config: str=None, name: str=None):
             check_scope(scope.lower(), ['class', 'function', 'module'])
 
         def wrapper(decorated):
-            return _get_logger_decorator(decorated, config=config, name=name)
+            return _get_logger_decorator(decorated, config=config, name=name, scope=scope)
         return wrapper
 
 
-def _get_logger_decorator(callable_: callable, config: str=None, name: str=None) -> LogDecorator:
+def _get_logger_decorator(callable_: callable, config: str=None, name: str=None, scope: str=None) -> Callable:
     """
-    Get the loggerDecorator based on what kind of callable is being passed, class | function
+    Get the logger decorator based on what kind of callable is being passed, class | function
+            - Inject a keyword arg to function/method
+            - Inject an attribute 'logger' to a class based decorator
 
     """
     if inspect.isclass(callable_):
-        return LogDecorator(callable_, scope='class',
-                            config=config, name=name)
+        if scope and scope != 'class':
+            raise MisMatchScope(f"{callable_} is a class, cannot be assigned to a '{scope}' scope")
+
+        provider = LogProvider(callable_, config=config, name=name)
+        callable_.logger = provider.logger
+        return callable_
 
     if inspect.isfunction(callable_):
-        return LogDecorator(callable_, scope='function',
-                            config=config, name=name)
+        if scope and scope != 'function':
+            raise MisMatchScope(f"{callable_} is a class, cannot be assigned to a '{scope}' scope")
+
+        provider = LogProvider(callable_, config=config, name=name)
+
+        @wraps(callable_)
+        def wrapper(*args, **kwargs):
+            return callable_(*args, **kwargs, logger=provider.logger)
+
+        return wrapper
 
     raise LogmeError("'{callable_}' must be a 'class' or a 'function'.")
 
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'

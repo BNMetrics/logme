@@ -6,7 +6,7 @@ from .dummy_stubs import *
 import logme
 from logme import _get_logger_decorator
 from logme.providers import LogmeLogger, ModuleLogger
-from logme.exceptions import LogmeError
+from logme.exceptions import LogmeError, MisMatchScope
 
 
 # ---------------------------------------------------------------------------
@@ -39,10 +39,11 @@ def test_function_wrong_scope():
 
 
 def test_class_logger_default():
-    obj = DummyClassDefault()
+    obj = DummyClassDefault('foo')
 
     assert hasattr(obj, 'logger')
     assert obj.logger.name == obj.__module__
+    assert obj.arg == 'foo'
 
 
 @pytest.mark.parametrize('scope', [pytest.param('Module', id='capital first letter'),
@@ -100,6 +101,20 @@ def test_change_logging_master_level(capsys):
     assert not err
 
 
+def test_mismatch_scope_function():
+    with pytest.raises(MisMatchScope):
+        @logme.log(scope='class')
+        def dummy_func_mismatch_scope(logger=None):
+            logger.info('blah')
+
+            return logger
+
+
+def test_mismatch_scope_class():
+    with pytest.raises(MisMatchScope):
+        @logme.log(scope='function')
+        class WrongClass: pass
+
 # ---------------------------------------------------------------------------
 # Tests for others, _get_logger_decorator()
 # ---------------------------------------------------------------------------
@@ -107,5 +122,5 @@ def test_get_logger_decorator_raise():
     with pytest.raises(LogmeError) as e_info:
         _get_logger_decorator('hello')
 
-    
+
 

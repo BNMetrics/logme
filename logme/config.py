@@ -63,7 +63,7 @@ def get_ini_file_path(caller_file_path: Union[str, Path]) -> Path:
 
     if caller_file_path in [Path(Path(caller_file_path).root).resolve(),
                             Path(caller_file_path).home().resolve()]:
-        raise ValueError("logme.ini does not exist, please use 'logme init' command in your project root")
+        raise ValueError(f"logme.ini does not exist, please use 'logme init' command in your project root.")
 
     if not conf_path.exists():
         return get_ini_file_path(Path(caller_file_path).parent)
