@@ -43,7 +43,7 @@ def log(scope: str=None, config: str=None, name: str=None):
 def _get_logger_decorator(callable_: callable, config: str=None, name: str=None, scope: str=None) -> Callable:
     """
     Get the logger decorator based on what kind of callable is being passed, class | function
-            - Inject a keyword arg to wfunction/method
+            - Inject a keyword arg to function/method
             - Inject an attribute 'logger' to a class based decorator
 
     """
