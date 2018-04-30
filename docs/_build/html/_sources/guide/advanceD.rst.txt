@@ -36,6 +36,9 @@ Option that applies to 'logme init' and 'logme add config_name':
     If you use a FileHandler for your logger, this is the log file path for the handler. This must be absolute path.
 
 
+
+
+
 Logger Delegation
 -----------------
 _____________________________________________________________________
@@ -119,3 +122,166 @@ Configuration can also be passed in as a dictionary with **config** argument.
 
     }
     logger.reset_configuration(config=config)
+
+
+
+**Reference**:
+~~~~~~~~~~~~~~
+
+``reset_config(config_name: str=None, config: dict=None, name: str=None)``
+    **parameters**:
+        - config_name: (*optional*) configuration(ini file section) name from logme.ini
+        - config: (*optional*) configuration dictionary
+        - name: (*optional*) The new name for the logger
+    One of ``config_name`` or ``config`` must be specified
+
+
+
+Adhoc Config change
+-----------------
+_____________________________________________________________________
+
+If you would like to change the logger configuration for specific logger, but do not want to change the config in ``logme.ini`` file,
+especially if such change is small, and it only applies to one single logger. There are a few ways of doing this.
+
+As previously mentioned in the **Logger Delegation** section, logging configuration can be reset after the creation of the logger
+by calling ``reset_configuration() method``, however, this would mean resetting the entire config of the logger.
+
+Instead of changing the whole config, You can also change only the level and the formatter of the logger or the individual handlers.
+
+
+I: Changing ``master_level`` and ``master_formatter``:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``master_level`` and ``master_formatter`` are attributes of the logger object. These attributes applies to all the handlers in the logger,
+if they are not being specified for each handler.
+
+To change the master attributes, simply override them, like so:
+
+**Example**:
+
+.. code-block:: python
+
+
+    @logme.log
+    def my_awesome_logger(logger=None):
+        logger.master_level = "ERROR"
+        logger.master_formatter = "{funcName} :: {levelname} :: {message}"
+        logger.info("This message won't be logged after level changing")
+
+        return logger
+
+
+
+
+II: Reconfiguring specific handlers:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of configuring ``master_level`` and ``master_formatter``, you can also change the configuration of specific handler by calling
+``reconfig_handler()`` method.
+
+
+**Example**:
+
+.. code-block:: python
+
+
+    @logme.log
+    def changing_logger_level(logger=None):
+        logger.reconfig_handler('StreamHandler', level='WARNING')
+
+        return logger
+
+
+    @logme.log
+    def changing_logger_formatter(logger=None):
+        logger.reconfig_handler('StreamHandler', formatter='{funcName}::{message}')
+
+        return logger
+
+
+
+.. note:: Handler configuration change is only viable if your logger has one of each type of handler. The future plan
+          is to assign names to each handler, so this will work with multiple handlers of the same type.
+
+
+**Reference**:
+~~~~~~~~~~~~~~
+
+``reconfig_handler(handler_name: str, level: Union[str, int]=None, formatter: str=None)``
+    **parameters**:
+        - config_name: **case sensitive**. Type of the handler, e.g: StreamHandler, FileHandler
+        - level: (*optional*) The new level to be set
+        - formatter: (*optional*) the new formatter to be set. '{' style.
+
+
+
+
+
+Using Logme in Installable Package
+-----------------
+_____________________________________________________________________
+
+When you make an ``pip`` installable package, you will need to ensure that ``logme.ini`` is installed alongside your package code
+to python's ``site-packages/`` directory.
+
+There are two options to make this happen:
+
+
+I. Include ``logme.ini`` in your package root
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can include ``logme.ini`` in your **package root** directory instead of project root(the same directory as your
+``setup.py``).
+
+It would look like this::
+
+    myproject_root/
+        mypackage_root/
+            __init__.py
+            myfile.py
+            logme.ini
+        setup.py
+
+Then you will also need to add ``package_data`` argument in your ``setup.py``, like so:
+
+.. code-block:: python
+
+    setup(
+        name='myproject',
+        packages=find_packages(exclude=['tests*']),
+        package_data={'': ['logme.ini']},
+        version=1.0,
+        description='My awesome package that is using logme',
+        author='Jane doe',
+        url='https://www.example.com',
+        author_email='jane@example.com',
+        license='Apache 2.0',
+    )
+
+
+I. Using ``MANIFEST.in``
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can also utilizing ``MANIFEST.in`` to help you include ``logme.ini``. With this, you can place ``logme.ini`` in your project root(the same directory as your
+``setup.py``), if you do not wish to have logme.ini file in the same directory as your source code in your project.
+
+Below is a sample ``MANIFEST.in`` file that includes logme.ini::
+
+    include LICENCE README.rst logme.ini
+
+
+Now in the ``setup.py`` you will need to add an additional argument: ``include_package_data=True`` instead of ``package_data``:
+
+.. code-block:: python
+
+    setup(
+        name='myproject',
+        packages=find_packages(exclude=['tests*']),
+        include_package_data=True,
+        version=1.0,
+        description='My awesome package that is using logme',
+        author='Jane doe',
+        url='https://www.example.com',
+        author_email='jane@example.com',
+        license='Apache 2.0',
+    )

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; Logme 1.0.3 documentation</title>
+  <title>Quickstart &mdash; Logme 1.0.6 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Logme 1.0.3 documentation" href="../index.html"/>
+    <link rel="top" title="Logme 1.0.6 documentation" href="../index.html"/>
         <link rel="next" title="Advanced Usage" href="advanced.html"/>
         <link rel="prev" title="Logme - Python Logging Made Easy" href="../index.html"/> 
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.0.3
+                1.0.6
               </div>
             
           
@@ -291,7 +291,7 @@ without having to configure each logger manually in your code.</p>
 <li><strong>scope</strong>: the scope of your logger: <em>class</em>, <em>function</em> or <em>module</em>. You can omit this parameter for class and
 function. <strong>this is required for module level logger</strong></li>
 <li><strong>config</strong>: the name of logging config specified in logme.ini, default would be the <em>logme</em> config</li>
-<li><strong>name</strong>: the name of the logger, default would be the __name__ of the file where you are calling logme.ini</li>
+<li><strong>name</strong>: the name of the logger, default would be the __name__ of the file where you are calling logme.log, or using the logme.log decorator.</li>
 </ul>
 </dd>
 </dl>
@@ -308,7 +308,7 @@ function. <strong>this is required for module level logger</strong></li>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Be sure to pass in the “logger” as a keyword argument, and you can assign it to None when defining the function</p>
+<p class="last">Be sure to pass in the “logger” as a keyword argument, and you can assign it to None when defining the function. This allows the logger object to be passed in the the function from the decorator.</p>
 </div>
 </div>
 <div class="section" id="logging-for-classes">
@@ -376,7 +376,7 @@ function. <strong>this is required for module level logger</strong></li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.3',
+            VERSION:'1.0.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

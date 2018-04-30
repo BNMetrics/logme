@@ -9,7 +9,6 @@ from logme.utils import (dict_to_conf, conf_to_dict, ensure_dir, check_scope,
 
 class TestPackageUtils:
 
-
     @classmethod
     def setup(cls):
 
@@ -54,6 +53,20 @@ class TestPackageUtils:
         output = conf_item_to_dict(parse_option)
 
         assert expected_dict == output
+
+    def test_conf_item_to_dict_multiple_colons(self):
+        parse_item = '\nactive: True' \
+                     '\nlevel: INFO' \
+                     '\nformatter: {funcName} :: {levelname} :: {message}'
+
+        expected = {
+            'active': True,
+            'level': 'INFO',
+            'formatter': '{funcName} :: {levelname} :: {message}',
+        }
+
+        assert conf_item_to_dict(parse_item) == expected
+
 
     @pytest.mark.parametrize('parse_option',
                              [pytest.param(['blah', 'test'], id='when option passed is a list'),

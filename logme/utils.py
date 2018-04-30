@@ -28,7 +28,7 @@ def conf_item_to_dict(parse_option: str) -> dict:
     """
     try:
         str_split = parse_option.strip().split('\n')
-        mapped_list = list(map(lambda x: x.split(': '), str_split))
+        mapped_list = list(map(lambda x: x.split(': ', 1), str_split))
 
         strip_blank_recursive(mapped_list)
 

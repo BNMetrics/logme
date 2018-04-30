@@ -69,14 +69,47 @@ def log_this():
 
 
 # ---------------------------------------------------------------------------
-# Others
+# Others: Config change
 # ---------------------------------------------------------------------------
-@logme.log
-def dummy_func_change_level(logger=None):
-    import logging
-    logger.master_level = logging.ERROR
+@logme.log(config='change_master_conf', name='change_master_level')
+def dummy_func_change_master_level(logger=None):
+    # Changing the master level with non specified level on handlers
+    logger.master_level = 'ERROR'
     logger.info('blah')
 
     return logger
 
+
+@logme.log(config='change_master_conf', name='change_master_format')
+def dummy_func_change_master_format(logger=None):
+    logger.master_formatter = '{funcName}::{message}'
+
+    logger.info('Changed master_formatter')
+
+    return logger
+
+
+@logme.log(config='logger_with_handler_conf')
+def dummy_func_change_master_format_with_handler_unaffected(logger=None):
+    logger.master_formatter = '{funcName} - {message}'
+
+    logger.info('changed master_formatter, handler formatter should not change')
+
+    return logger
+
+
+@logme.log(name='handler_level_change')
+def dummy_func_change_handler_level(logger=None):
+    logger.reconfig_handler('StreamHandler', level='WARNING')
+
+    return logger
+
+
+@logme.log(name='config_change_logger')
+class DummyClassChangeConfig:
+    def __init__(self):
+        pass
+
+    def change_my_level(self):
+        self.logger.reconfig_handler('StreamHandler', level=50)
 

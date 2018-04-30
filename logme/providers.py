@@ -1,13 +1,13 @@
 import inspect
 
-from typing import Callable
+from typing import Callable, Union
 
 import logging
 from logging import handlers as logging_handlers
 
 from .config import get_config_content
 from .utils import ensure_dir
-from .exceptions import InvalidOption, InvalidConfig, DuplicatedHandler
+from .exceptions import InvalidOption, InvalidConfig, DuplicatedHandler, LogmeError
 
 
 class LogProvider:
@@ -88,8 +88,7 @@ class LogmeLogger:
         self.config = config
 
         self._set_master_properties()
-
-        self._set_handlers()
+        self._set_handlers_from_conf()
 
     def __getattr__(self, attr):
         """
@@ -107,10 +106,28 @@ class LogmeLogger:
 
         return logger
 
+    @property
+    def master_formatter(self):
+        return logging.Formatter(self._master_formatter, style='{')
+
+    @master_formatter.setter
+    def master_formatter(self, formatter):
+        self._master_formatter = formatter
+        self._set_handlers_from_conf(reconfig=True)
+
+    @property
+    def master_level(self):
+        return self._get_level(self._master_level)
+
+    @master_level.setter
+    def master_level(self, level):
+        self._master_level = level
+        self._set_handlers_from_conf(reconfig=True)
+
     def _set_master_properties(self):
         master_properties = {
-            'master_formatter': logging.Formatter(self.config['formatter'], style='{'),
-            'master_level': getattr(logging, self.config['level'].upper()),
+            '_master_formatter': self.config['formatter'],
+            '_master_level': self.config['level'],
             'handler_names':  [i for i in self.config.keys() if 'Handler' in i]
 
         }
@@ -118,7 +135,7 @@ class LogmeLogger:
         for k, v in master_properties.items():
             setattr(self, k, v)
 
-    def _set_handlers(self):
+    def _set_handlers_from_conf(self, reconfig=False):
         """
         Iterate through the config dict, set the active handlers
         """
@@ -127,59 +144,71 @@ class LogmeLogger:
             if self.config[handler_name]['active'] is False:
                 continue
 
-            handler = self._get_handler(handler_name)
-
             level = self.config[handler_name].get('level')
             formatter = self.config[handler_name].get('formatter')
-            self._config_handler(handler, formatter=formatter, level=level)
 
-            if not self._handler_exist(handler):
-                self.logger.addHandler(handler)
+            parse_args = self._get_handler_args(handler_name)
 
-    def _get_handler(self, handler_name: str) -> logging.Handler:
-        """ Get Handler object by name """
+            if reconfig:  # If true, reconfigure the existing handlers
+                handler_obj = self.get_handler_by_name(handler_name)
+                self._config_handler(handler_obj, level=level,
+                                     formatter=formatter, set_from_master=True)
+            else:
+                self.add_handler(handler_name, level=level, formatter=formatter,
+                                 skip_duplicate=True, **parse_args)
 
-        try:
-            handler_class = getattr(logging, handler_name)
-        except AttributeError:
-            handler_class = getattr(logging_handlers, handler_name)
-
+    def _get_handler_args(self, handler_name):
+        """
+        Get the args passed into handler from config
+        """
         if handler_name == 'FileHandler':
             try:
                 filename = self.config[handler_name]['filename']
                 ensure_dir(filename)
 
-                handler = handler_class(filename=filename)
-            except TypeError:  # filename is None
+            except (TypeError, KeyError):  # filename is None or not Passed in
                 raise ValueError(f"file path for the {handler_name} must not be None")
-        else:
-            try:
-                parse_args = {k: v for k, v in self.config[handler_name].items()
-                              if k not in ['active', 'level', 'formatter']}
 
-                handler = handler_class(**parse_args)
-            except KeyError:
-                raise InvalidConfig(f"{handler_name} is not configured in the logme.ini file, "
-                                    f"current available handlers: {self.handler_names}")
+        parse_args = {k: v for k, v in self.config[handler_name].items()
+                      if k not in ['active', 'level', 'formatter']}
 
-        return handler
+        return parse_args
 
-    def _config_handler(self, handler, level: str=None, formatter: str=None):
+    def _config_handler(self, handler, level: Union[str, int]=None,
+                        formatter: str=None, set_from_master: bool=False):
+
         """
         Configure the handler's level and formatter
+
+        :param handler: logger.Handler type object
+        :param level: the level of the handler
+        :param formatter: the formatter of the handler
+
+        :param set_from_master: Set *level* or *formatter* from obj.master_level and obj.master_formatter
+
         """
         # Set level
         if level:
-            handler.setLevel(getattr(logging, level.upper()))
-        else:
+            log_level = self._get_level(level)
+            handler.setLevel(log_level)
+        elif set_from_master:
             handler.setLevel(self.master_level)
 
         # Set formatter
         if formatter:
             formatter_object = logging.Formatter(formatter, style='{')
             handler.setFormatter(formatter_object)
-        else:
+        elif set_from_master:
             handler.setFormatter(self.master_formatter)
+
+    def _get_level(self, level: Union[str, int]):
+        """
+        Get the level number of the logger
+        """
+        if isinstance(level, str):
+            return logging.getLevelName(level.upper())
+        if isinstance(level, int):  # logging.ERROR is also type of int
+            return level
 
     def _handler_exist(self, handler: logging.Handler) -> bool:
         """
@@ -197,8 +226,8 @@ class LogmeLogger:
 
         return False
 
-    def add_handler(self, handler_type: str, formatter: str=None,
-                    level: str=None, allow_duplicate: bool=False, **kwargs):
+    def add_handler(self, handler_type: str, formatter: str=None, level: Union[str, int]=None,
+                    allow_duplicate: bool=False, skip_duplicate: bool=False, **kwargs):
         """
         Add the handler to self.logger on adhoc basis
 
@@ -206,20 +235,31 @@ class LogmeLogger:
         :param formatter: formatter to be passed to the handler
         :param level: Level for the handler
         :param allow_duplicate: *USE WITH CAUTION*, this allows duplication of handlers in the same logger
+        :param skip_duplicate: Skip the duplicated handler
 
         :param kwargs: arguments to be passed to the handler class
 
         """
-        handler_class = getattr(logging, handler_type)
+        try:
+            handler_class = getattr(logging, handler_type)
+        except AttributeError:
+            handler_class = getattr(logging_handlers, handler_type)
 
         handler = handler_class(**kwargs)
-        self._config_handler(handler, level=level, formatter=formatter)
+        self._config_handler(handler, level=level,
+                             formatter=formatter, set_from_master=True)
 
-        if not self._handler_exist(handler) or allow_duplicate:
-            self.logger.addHandler(handler)
+        if self._handler_exist(handler):
+            if allow_duplicate:
+                self.logger.addHandler(handler)
+                return
+            if skip_duplicate:
+                return
+            else:
+                raise DuplicatedHandler(f"{handler_class} with the exact same configuration already exists, "
+                                            f"add allow_duplicate=True to allow.")
         else:
-            raise DuplicatedHandler(f"{handler_class} with the exact same configuration already exists, "
-                                    f"add allow_duplicate=True to allow.")
+            self.logger.addHandler(handler)
 
     def _get_handler_attr(self, handler: logging.Handler) -> dict:
         """
@@ -261,4 +301,38 @@ class LogmeLogger:
             self.logger.removeHandler(i)
 
         self._set_master_properties()
-        self._set_handlers()
+        self._set_handlers_from_conf()
+
+    def reconfig_handler(self, handler_name: str, level: Union[str, int]=None, formatter: str=None):
+        """
+        Reconfigure an existing handler's level and formatter.
+        *This can be used to configure a handler for a specific logger to be different from the config in Logme.ini*
+
+        :param handler_name: **case sensitive**. name of the handler, e.g: StreamHandler, FileHandler
+        :param level: the new level to be set
+        :param formatter: the new formatter to be set. '{' format
+
+        """
+        if not level and not formatter:
+            raise InvalidOption("Set at least one of 'level' or 'formatter' for reconfiguration.")
+
+        handler_obj = self.get_handler_by_name(handler_name)
+
+        if not handler_obj:
+            raise LogmeError(f"{handler_name} is not found in this logger, either use add_handle() to add this handler")
+
+        self._config_handler(handler_obj, level=level,
+                             formatter=formatter)
+
+    def get_handler_by_name(self, handler_name: str):
+        """
+        Get the handler of self.logger by name
+        *return None if none existent*
+
+        :param handler_name: **case sensitive**. name of the handler, e.g: StreamHandler, FileHandler
+
+        """
+        for i in self.logger.handlers:
+            if i.__class__.__name__ == handler_name:
+                return i
+

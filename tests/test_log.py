@@ -80,27 +80,6 @@ def test_method_with_args(caplog):
     assert caplog.record_tuples[0] == ('another_logger_with_args', 20, 'method logger with args')
 
 
-def test_change_logging_config(file_config_content):
-    module_logger.reset_config(config=file_config_content)
-
-    log_path = Path(file_config_content['FileHandler']['filename'])
-    assert log_path.exists()
-
-    log_this()
-    with open(log_path) as file:
-        assert file.readline() == "change_config::change my config.\n"
-
-
-def test_change_logging_master_level(capsys):
-    logger = dummy_func_change_level()
-
-    assert logger.level == 40
-
-    out, err = capsys.readouterr()
-    assert not out
-    assert not err
-
-
 def test_mismatch_scope_function():
     with pytest.raises(MisMatchScope):
         @logme.log(scope='class')
@@ -115,12 +94,68 @@ def test_mismatch_scope_class():
         @logme.log(scope='function')
         class WrongClass: pass
 
+
+# ---------------------------------------------------------------------------
+# Tests for config change, master_level/master_formatter
+# ---------------------------------------------------------------------------
+def test_change_logging_config(file_config_content):
+    assert module_logger.logger.name == 'change_config'
+
+    module_logger.reset_config(config=file_config_content, name='changed_name')
+
+    log_path = Path(file_config_content['FileHandler']['filename'])
+    assert log_path.exists()
+
+    log_this()
+    with open(log_path) as file:
+        assert file.readline() == "changed_name::change my config.\n"
+
+    assert module_logger.logger.name == module_logger.name == 'changed_name'
+
+
+def test_change_logging_master_level():
+    logger = dummy_func_change_master_level()
+
+    assert logger.level == 40
+    assert logger.handlers[0].level == 40
+
+
+def test_change_logging_master_formatter():
+    logger = dummy_func_change_master_format()
+
+    assert logger.master_formatter._fmt == '{funcName}::{message}'
+    assert logger.handlers[0].formatter._fmt == '{funcName}::{message}'
+
+
+def test_change_master_formatter_handler_unaffected():
+    logger = dummy_func_change_master_format_with_handler_unaffected()
+
+    handler = logger.get_handler_by_name('StreamHandler')
+    assert logger.master_formatter._fmt == '{funcName} - {message}'
+    assert handler.formatter._fmt == '{funcName} :: {levelname} :: {message}'
+
+
+def test_class_logger_handler_level_change():
+    obj = DummyClassChangeConfig()
+    
+    obj.change_my_level()
+    
+    assert obj.logger.handlers[0].level == 50
+
+
+def test_function_handler_level_change():
+    logger = dummy_func_change_handler_level()
+
+    handler = logger.get_handler_by_name('StreamHandler')
+    assert handler.level == 30
+    assert logger.level == logger.master_level == 10
+
+
 # ---------------------------------------------------------------------------
 # Tests for others, _get_logger_decorator()
 # ---------------------------------------------------------------------------
 def test_get_logger_decorator_raise():
     with pytest.raises(LogmeError) as e_info:
         _get_logger_decorator('hello')
-
 
 

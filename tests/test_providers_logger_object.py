@@ -1,11 +1,13 @@
 import pytest
 
-from pathlib import Path
 import logging
+import mock
+from pathlib import Path
 
+import logme.providers
 from logme.providers import LogmeLogger
 from logme.config import get_config_content
-from logme.exceptions import InvalidConfig, DuplicatedHandler, InvalidOption
+from logme.exceptions import InvalidConfig, DuplicatedHandler, InvalidOption, LogmeError
 
 
 class TestLogmeLogger:
@@ -44,7 +46,8 @@ class TestLogmeLogger:
         assert isinstance(handlers[0], logging.StreamHandler)
 
     def test_set_handlers_twice(self):
-        self.logger._set_handlers()
+        """Should not set duplicated handlers"""
+        self.logger._set_handlers_from_conf()
 
         assert len(self.logger.handlers) == 1
         assert isinstance(self.logger.handlers[0], logging.StreamHandler)
@@ -52,6 +55,22 @@ class TestLogmeLogger:
     # ---------------------------------------------------------------------------
     # Test individual methods
     # ---------------------------------------------------------------------------
+
+    def test_get_handler_args(self, monkeypatch):
+        # Patch ensure_dir, so the arbitrary directory is not created
+        monkeypatch.setattr(logme.providers, 'ensure_dir', lambda x: True)
+
+        args = self.logger._get_handler_args('FileHandler')
+        expected = {'filename': 'mylogpath/foo.log'}
+
+        assert args == expected
+
+    def test_get_handler_args_raise(self):
+        config = get_config_content(__file__, 'null_config')
+        logger = LogmeLogger('my_arg_test', config)
+
+        with pytest.raises(ValueError):
+            logger._get_handler_args('FileHandler')
 
     def test_get_handler_filehandler(self, file_config_content):
         logger = LogmeLogger('file_logger', file_config_content)
@@ -63,16 +82,6 @@ class TestLogmeLogger:
 
         with open(log_path) as file:
             assert file.readline() == 'file_logger::my log message for file handler\n'
-
-    @pytest.mark.parametrize('exception, handler_name',
-                             [pytest.param(ValueError, 'FileHandler',
-                                           id='exception raised when file handler filename is None'),
-                              pytest.param(InvalidConfig, 'SocketHandler',
-                                           id='exception raised when handler_name passed '
-                                              'is not configured in logme.ini file')])
-    def test_get_handler_raise(self, exception, handler_name):
-        with pytest.raises(exception):
-            self.logger._get_handler(handler_name)
 
     def test_set_handlers_handler_level_config(self, tmpdir):
         config = get_config_content(__file__, 'my_test_logger')
@@ -93,7 +102,7 @@ class TestLogmeLogger:
 
         assert self.logger._handler_exist(stream_handler)
 
-    def test_add_handler(self, tmpdir):
+    def test_add_handler_filehandler(self, tmpdir):
         assert len(self.logger.handlers) == 1
         assert self.logger.handlers[0].__class__ == logging.StreamHandler
 
@@ -102,6 +111,14 @@ class TestLogmeLogger:
 
         assert len(self.logger.handlers) == 2
         assert set(map(lambda x: x.__class__, self.logger.handlers)) == {logging.StreamHandler, logging.FileHandler}
+
+    def test_add_handler_sockethandler(self):
+        self.logger.add_handler('SocketHandler', formatter='{name}->{message}',
+                                level='debug', host='127.0.0.5', port=55)
+
+        handler_types = [i.__class__.__name__ for i in self.logger.handlers]
+
+        assert 'SocketHandler' in handler_types
 
     def test_add_handlers_raise(self, tmpdir):
         self.logger.add_handler('FileHandler', formatter='{name}->{message}',
@@ -168,9 +185,82 @@ class TestLogmeLogger:
 
         assert e_info.value.args[0] == message
 
+    def test_config_handler_with_master(self):
+        stream_handler = logging.StreamHandler()
 
+        assert stream_handler.level == 0  # Level NOTSET
+        assert stream_handler.formatter is None
 
+        self.logger._config_handler(stream_handler, set_from_master=True)
 
+        assert stream_handler.level == 10
+        assert stream_handler.formatter is not None
+        assert stream_handler.formatter._fmt == '{asctime} - {name} - {levelname} - {module}::{funcName}::{message}'
+
+    @pytest.mark.parametrize('level',
+                             [
+                                 pytest.param('INFO', id='all upper case string'),
+                                 pytest.param('Info', id='With lowercase string'),
+                                 pytest.param(20, id='with int value passed'),
+                             ])
+    def test_config_handler_with_no_master(self, level):
+        stream_handler = logging.StreamHandler()
+
+        self.logger._config_handler(stream_handler, level=level)
+
+        assert stream_handler.level == 20
+        assert stream_handler.formatter is None
+
+    def test_reconfig_handler(self, tmpdir):
+        config = get_config_content(__file__, 'filehandler_conf')
+        log_file = Path(tmpdir.join('mylog.log'))
+
+        config['FileHandler']['filename'] = str(log_file)
+        config['StreamHandler']['active'] = True
+
+        logger = LogmeLogger('reconfig_handler_test', config)
+
+        # Check original level
+        assert logger.handlers[0].level == 10
+        assert logger.handlers[1].level == 10
+        logger.debug('hello, there')
+
+        lines_before = self.get_log_file_lines(log_file)
+
+        # Reconfigure and check current level
+        logger.reconfig_handler('FileHandler', level=50)
+        assert logger.handlers[0].level == 10
+        assert logger.handlers[1].level == 50
+        logger.info('hello')
+
+        lines_after = self.get_log_file_lines(log_file)
+
+        assert lines_before == lines_after
+
+    def test_reconfigure_handler_raise_no_arg(self):
+        with pytest.raises(InvalidOption):
+            self.logger.reconfig_handler('StreamHandler')
+
+    def test_reconfigure_handler_invalid_handler(self):
+        with pytest.raises(LogmeError):
+            self.logger.reconfig_handler('RotatingFileHandler', level=10)
+
+    def test_get_handler_by_name(self):
+        logger = LogmeLogger(name='my_logger', config=self.config)
+
+        handler = logger.get_handler_by_name('StreamHandler')
+        assert type(handler) == logging.StreamHandler
+
+    # ---------------------------------------------------------------------------
+    # Helpers
+    # ---------------------------------------------------------------------------
+    def get_log_file_lines(self, log_file):
+        lines_list = []
+        with open(log_file) as file:
+            for line in file:
+                lines_list.append(line)
+
+        return lines_list
 
 
 

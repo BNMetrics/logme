@@ -9,5 +9,6 @@ __pycache__
 tests/__pycache__
 
 build/
+docs/_build
 cover/
 dist/

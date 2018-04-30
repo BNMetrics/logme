@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage &mdash; Logme 1.0.3 documentation</title>
+  <title>Advanced Usage &mdash; Logme 1.0.6 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Logme 1.0.3 documentation" href="../index.html"/>
+    <link rel="top" title="Logme 1.0.6 documentation" href="../index.html"/>
         <link rel="prev" title="Quickstart" href="quickstart.html"/> 
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                1.0.3
+                1.0.6
               </div>
             
           
@@ -100,6 +100,18 @@
 <li class="toctree-l2"><a class="reference internal" href="#logger-delegation">Logger Delegation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#i-using-logme-config-name">I: Using logme config name:</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ii-using-a-config-dictionary">II: Using a config dictionary:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reference"><strong>Reference</strong>:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#adhoc-config-change">Adhoc Config change</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#i-changing-master-level-and-master-formatter">I: Changing <code class="docutils literal notranslate"><span class="pre">master_level</span></code> and <code class="docutils literal notranslate"><span class="pre">master_formatter</span></code>:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ii-reconfiguring-specific-handlers">II: Reconfiguring specific handlers:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1"><strong>Reference</strong>:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-logme-in-installable-package">Using Logme in Installable Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#i-include-logme-ini-in-your-package-root">I. Include <code class="docutils literal notranslate"><span class="pre">logme.ini</span></code> in your package root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#i-using-manifest-in">I. Using <code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -278,6 +290,147 @@ by directly passing in the configuration name with <strong>config_name</strong> 
 </pre></div>
 </div>
 </div>
+<div class="section" id="reference">
+<h3><strong>Reference</strong>:<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">reset_config(config_name:</span> <span class="pre">str=None,</span> <span class="pre">config:</span> <span class="pre">dict=None,</span> <span class="pre">name:</span> <span class="pre">str=None)</span></code></dt>
+<dd><dl class="first docutils">
+<dt><strong>parameters</strong>:</dt>
+<dd><ul class="first last simple">
+<li>config_name: (<em>optional</em>) configuration(ini file section) name from logme.ini</li>
+<li>config: (<em>optional</em>) configuration dictionary</li>
+<li>name: (<em>optional</em>) The new name for the logger</li>
+</ul>
+</dd>
+</dl>
+<p class="last">One of <code class="docutils literal notranslate"><span class="pre">config_name</span></code> or <code class="docutils literal notranslate"><span class="pre">config</span></code> must be specified</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="adhoc-config-change">
+<h2>Adhoc Config change<a class="headerlink" href="#adhoc-config-change" title="Permalink to this headline">¶</a></h2>
+<hr class="docutils" />
+<p>If you would like to change the logger configuration for specific logger, but do not want to change the config in <code class="docutils literal notranslate"><span class="pre">logme.ini</span></code> file,
+especially if such change is small, and it only applies to one single logger. There are a few ways of doing this.</p>
+<p>As previously mentioned in the <strong>Logger Delegation</strong> section, logging configuration can be reset after the creation of the logger
+by calling <code class="docutils literal notranslate"><span class="pre">reset_configuration()</span> <span class="pre">method</span></code>, however, this would mean resetting the entire config of the logger.</p>
+<p>Instead of changing the whole config, You can also change only the level and the formatter of the logger or the individual handlers.</p>
+<div class="section" id="i-changing-master-level-and-master-formatter">
+<h3>I: Changing <code class="docutils literal notranslate"><span class="pre">master_level</span></code> and <code class="docutils literal notranslate"><span class="pre">master_formatter</span></code>:<a class="headerlink" href="#i-changing-master-level-and-master-formatter" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">master_level</span></code> and <code class="docutils literal notranslate"><span class="pre">master_formatter</span></code> are attributes of the logger object. These attributes applies to all the handlers in the logger,
+if they are not being specified for each handler.</p>
+<p>To change the master attributes, simply override them, like so:</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@logme.log</span>
+<span class="k">def</span> <span class="nf">my_awesome_logger</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">master_level</span> <span class="o">=</span> <span class="s2">&quot;ERROR&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">master_formatter</span> <span class="o">=</span> <span class="s2">&quot;{funcName} :: {levelname} :: {message}&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This message won&#39;t be logged after level changing&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logger</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ii-reconfiguring-specific-handlers">
+<h3>II: Reconfiguring specific handlers:<a class="headerlink" href="#ii-reconfiguring-specific-handlers" title="Permalink to this headline">¶</a></h3>
+<p>Instead of configuring <code class="docutils literal notranslate"><span class="pre">master_level</span></code> and <code class="docutils literal notranslate"><span class="pre">master_formatter</span></code>, you can also change the configuration of specific handler by calling
+<code class="docutils literal notranslate"><span class="pre">reconfig_handler()</span></code> method.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@logme.log</span>
+<span class="k">def</span> <span class="nf">changing_logger_level</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">reconfig_handler</span><span class="p">(</span><span class="s1">&#39;StreamHandler&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logger</span>
+
+
+<span class="nd">@logme.log</span>
+<span class="k">def</span> <span class="nf">changing_logger_formatter</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">reconfig_handler</span><span class="p">(</span><span class="s1">&#39;StreamHandler&#39;</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="s1">&#39;{funcName}::{message}&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">logger</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Handler configuration change is only viable if your logger has one of each type of handler. The future plan
+is to assign names to each handler, so this will work with multiple handlers of the same type.</p>
+</div>
+</div>
+<div class="section" id="id1">
+<h3><strong>Reference</strong>:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">reconfig_handler(handler_name:</span> <span class="pre">str,</span> <span class="pre">level:</span> <span class="pre">Union[str,</span> <span class="pre">int]=None,</span> <span class="pre">formatter:</span> <span class="pre">str=None)</span></code></dt>
+<dd><dl class="first last docutils">
+<dt><strong>parameters</strong>:</dt>
+<dd><ul class="first last simple">
+<li>config_name: <strong>case sensitive</strong>. Type of the handler, e.g: StreamHandler, FileHandler</li>
+<li>level: (<em>optional</em>) The new level to be set</li>
+<li>formatter: (<em>optional</em>) the new formatter to be set. ‘{‘ style.</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="using-logme-in-installable-package">
+<h2>Using Logme in Installable Package<a class="headerlink" href="#using-logme-in-installable-package" title="Permalink to this headline">¶</a></h2>
+<hr class="docutils" />
+<p>When you make an <code class="docutils literal notranslate"><span class="pre">pip</span></code> installable package, you will need to ensure that <code class="docutils literal notranslate"><span class="pre">logme.ini</span></code> is installed alongside your package code
+to python’s <code class="docutils literal notranslate"><span class="pre">site-packages/</span></code> directory.</p>
+<p>There are two options to make this happen:</p>
+<div class="section" id="i-include-logme-ini-in-your-package-root">
+<h3>I. Include <code class="docutils literal notranslate"><span class="pre">logme.ini</span></code> in your package root<a class="headerlink" href="#i-include-logme-ini-in-your-package-root" title="Permalink to this headline">¶</a></h3>
+<p>You can include <code class="docutils literal notranslate"><span class="pre">logme.ini</span></code> in your <strong>package root</strong> directory instead of project root(the same directory as your
+<code class="docutils literal notranslate"><span class="pre">setup.py</span></code>).</p>
+<p>It would look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">myproject_root</span><span class="o">/</span>
+    <span class="n">mypackage_root</span><span class="o">/</span>
+        <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">myfile</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">logme</span><span class="o">.</span><span class="n">ini</span>
+    <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Then you will also need to add <code class="docutils literal notranslate"><span class="pre">package_data</span></code> argument in your <code class="docutils literal notranslate"><span class="pre">setup.py</span></code>, like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;myproject&#39;</span><span class="p">,</span>
+    <span class="n">packages</span><span class="o">=</span><span class="n">find_packages</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tests*&#39;</span><span class="p">]),</span>
+    <span class="n">package_data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;logme.ini&#39;</span><span class="p">]},</span>
+    <span class="n">version</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;My awesome package that is using logme&#39;</span><span class="p">,</span>
+    <span class="n">author</span><span class="o">=</span><span class="s1">&#39;Jane doe&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://www.example.com&#39;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s1">&#39;jane@example.com&#39;</span><span class="p">,</span>
+    <span class="n">license</span><span class="o">=</span><span class="s1">&#39;Apache 2.0&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="i-using-manifest-in">
+<h3>I. Using <code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code><a class="headerlink" href="#i-using-manifest-in" title="Permalink to this headline">¶</a></h3>
+<p>You can also utilizing <code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code> to help you include <code class="docutils literal notranslate"><span class="pre">logme.ini</span></code>. With this, you can place <code class="docutils literal notranslate"><span class="pre">logme.ini</span></code> in your project root(the same directory as your
+<code class="docutils literal notranslate"><span class="pre">setup.py</span></code>), if you do not wish to have logme.ini file in the same directory as your source code in your project.</p>
+<p>Below is a sample <code class="docutils literal notranslate"><span class="pre">MANIFEST.in</span></code> file that includes logme.ini:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span> <span class="n">LICENCE</span> <span class="n">README</span><span class="o">.</span><span class="n">rst</span> <span class="n">logme</span><span class="o">.</span><span class="n">ini</span>
+</pre></div>
+</div>
+<p>Now in the <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> you will need to add an additional argument: <code class="docutils literal notranslate"><span class="pre">include_package_data=True</span></code> instead of <code class="docutils literal notranslate"><span class="pre">package_data</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;myproject&#39;</span><span class="p">,</span>
+    <span class="n">packages</span><span class="o">=</span><span class="n">find_packages</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tests*&#39;</span><span class="p">]),</span>
+    <span class="n">include_package_data</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;My awesome package that is using logme&#39;</span><span class="p">,</span>
+    <span class="n">author</span><span class="o">=</span><span class="s1">&#39;Jane doe&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;https://www.example.com&#39;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s1">&#39;jane@example.com&#39;</span><span class="p">,</span>
+    <span class="n">license</span><span class="o">=</span><span class="s1">&#39;Apache 2.0&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 
@@ -323,7 +476,7 @@ by directly passing in the configuration name with <strong>config_name</strong> 
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.3',
+            VERSION:'1.0.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

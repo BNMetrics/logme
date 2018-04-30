@@ -157,7 +157,7 @@ For functions, you can simple just decorate the function/method in which you wan
         return logger, name
 
 
-.. note:: Be sure to pass in the "logger" as a keyword argument, and you can assign it to None when defining the function
+.. note:: Be sure to pass in the "logger" as a keyword argument, and you can assign it to None when defining the function. This allows the logger object to be passed in the the function from the decorator.
 
 
 

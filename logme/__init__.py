@@ -33,7 +33,7 @@ def log(scope: str=None, config: str=None, name: str=None):
         return _get_logger_decorator(scope, config=config, name=name)
     else:
         if scope:
-            check_scope(scope.lower(), ['class', 'function', 'module'])
+            check_scope(scope.lower(), ['class', 'function'])
 
         def wrapper(decorated):
             return _get_logger_decorator(decorated, config=config, name=name, scope=scope)
@@ -43,7 +43,7 @@ def log(scope: str=None, config: str=None, name: str=None):
 def _get_logger_decorator(callable_: callable, config: str=None, name: str=None, scope: str=None) -> Callable:
     """
     Get the logger decorator based on what kind of callable is being passed, class | function
-            - Inject a keyword arg to function/method
+            - Inject a keyword arg to wfunction/method
             - Inject an attribute 'logger' to a class based decorator
 
     """
@@ -67,7 +67,7 @@ def _get_logger_decorator(callable_: callable, config: str=None, name: str=None,
 
         return wrapper
 
-    raise LogmeError("'{callable_}' must be a 'class' or a 'function'.")
+    raise LogmeError(f"'{callable_}' must be a 'class' or a 'function'.")
 
 
-__version__ = '1.0.5'
+__version__ = '1.0.6'

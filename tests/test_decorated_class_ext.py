@@ -17,6 +17,7 @@ def test_valid_typing_class():
     assert type(obj) == DummyClassForExtension
     assert type(obj_custon_name) == DummyClassCustom
 
+
 def test_valid_typing_function():
     #  <class 'function'>
     assert type(dummy_function_default) == types.FunctionType
@@ -47,4 +48,3 @@ def test_extending_decorated_class():
     assert extended_obj.arg1 == 'a1'
     assert hasattr(extended_obj, 'logger')
     assert isinstance(extended_obj.logger, LogmeLogger)
-
