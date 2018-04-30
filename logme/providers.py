@@ -7,7 +7,7 @@ from logging import handlers as logging_handlers
 
 from .config import get_config_content
 from .utils import ensure_dir
-from .exceptions import InvalidOption, InvalidConfig, DuplicatedHandler, LogmeError
+from .exceptions import InvalidOption, DuplicatedHandler, LogmeError
 
 
 class LogProvider:
