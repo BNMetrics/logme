@@ -5,7 +5,11 @@ python:
   - 3.6
 
 install:
-  - pip install pytest click
+  - pip install pytest click codecov pytest-cov
 
 script:
-  - pytest
+  - pytest --cov=logme --cov-report=xml
+
+
+after_success:
+  - codecov --token=$CODECOV

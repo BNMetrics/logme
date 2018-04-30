@@ -19,7 +19,7 @@ from .providers import LogProvider, ModuleLogger
 
 def log(scope: str=None, config: str=None, name: str=None):
     """
-    Returns a decorator or logger object
+    Returns a decorator or logger object based on the *scope*.
 
     :param scope: scope of the logger
     :param config: name of the logging config specified in logme.ini

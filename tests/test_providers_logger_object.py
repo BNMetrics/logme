@@ -1,13 +1,12 @@
 import pytest
 
 import logging
-import mock
 from pathlib import Path
 
 import logme.providers
 from logme.providers import LogmeLogger
 from logme.config import get_config_content
-from logme.exceptions import InvalidConfig, DuplicatedHandler, InvalidOption, LogmeError
+from logme.exceptions import DuplicatedHandler, InvalidOption, LogmeError
 
 
 class TestLogmeLogger:
