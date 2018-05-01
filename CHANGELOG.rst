@@ -8,8 +8,20 @@ CHANGELOG
 **Improvements**
 
 - Improvements on docs, included documentation for ``Adhoc Config Change`` and ``Using Logme in installable packages``
--
+- Int value can now be passed as logger/handler level configuration
+- ``master_level`` and ``master_formatter`` attribute can be reconfigured by reassigning values, int/str value for ``master_level``,
+  and str value for ``master_formatter``
+- Handlers can now be reconfigured after logger creation by calling ``reconfig_handler`` method on specific handler
 
+
+**Bug Fixes**
+
+- Fixed f string typo in ``__init__.py::_get_logger_decorator()``
+- Fixed a bug in ``utils.py::conf_item_to_dict()``, to split only on the first ': '
+
+**Misc**
+
+- Code clean up on providers.py
 
 
 1.0.5 (2018-04-24)
