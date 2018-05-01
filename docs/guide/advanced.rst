@@ -224,8 +224,8 @@ _____________________________________________________________________
 When you make an ``pip`` installable package, you will need to ensure that ``logme.ini`` is installed alongside your package code
 to python's ``site-packages/`` directory.
 
-There are two options to make this happen, and for both of them you will need to include ``logme.ini`` in your **package root** directory instead of project root(the same directory as your
-``setup.py``).
+There are two options to make this happen, and for both of them you will need to include ``logme.ini`` in your **package root**(*where your source code is*) directory
+instead of project root(*the same directory as your*``setup.py``).
 
 It would look like this::
 
