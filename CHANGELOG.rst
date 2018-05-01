@@ -2,11 +2,14 @@
 CHANGELOG
 =========
 
-1.0.4 (2018-04-18)
+1.0.6 (2018-04-30)
 ==================
 
-- Minor changes on ``strip_blank_recursive()`` to catch ``SyntaxError`` when passing logger format.
-- Made test cases for changing ``master_level`` on logger after instantiation
+**Improvements**
+
+- Improvements on docs, included documentation for ``Adhoc Config Change`` and ``Using Logme in installable packages``
+-
+
 
 
 1.0.5 (2018-04-24)
@@ -31,3 +34,10 @@ CHANGELOG
 - Changed ``LogDecorator`` class to ``LogProvider`` as it is no longer a decorator
 - ``logme.log`` decorator used by function / class is now resolved from ``_get_logger_decorator()``
 - Added test cases for decorated class extension.
+
+
+1.0.4 (2018-04-18)
+==================
+
+- Minor changes on ``strip_blank_recursive()`` to catch ``SyntaxError`` when passing logger format.
+- Made test cases for changing ``master_level`` on logger after instantiation

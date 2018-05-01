@@ -224,13 +224,7 @@ _____________________________________________________________________
 When you make an ``pip`` installable package, you will need to ensure that ``logme.ini`` is installed alongside your package code
 to python's ``site-packages/`` directory.
 
-There are two options to make this happen:
-
-
-I. Include ``logme.ini`` in your package root
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can include ``logme.ini`` in your **package root** directory instead of project root(the same directory as your
+There are two options to make this happen, and for both of them you will need to include ``logme.ini`` in your **package root** directory instead of project root(the same directory as your
 ``setup.py``).
 
 It would look like this::
@@ -242,7 +236,11 @@ It would look like this::
             logme.ini
         setup.py
 
-Then you will also need to add ``package_data`` argument in your ``setup.py``, like so:
+
+I. Using package_data in setuptool
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the simplest way to include non-python files in your package, you only need to include  ``package_data`` argument in your ``setup.py``, like so:
 
 .. code-block:: python
 
@@ -262,8 +260,7 @@ Then you will also need to add ``package_data`` argument in your ``setup.py``, l
 I. Using ``MANIFEST.in``
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also utilizing ``MANIFEST.in`` to help you include ``logme.ini``. With this, you can place ``logme.ini`` in your project root(the same directory as your
-``setup.py``), if you do not wish to have logme.ini file in the same directory as your source code in your project.
+You can also utilizing ``MANIFEST.in`` to help you include ``logme.ini``. With this option, you will need to create a ``MANIFEST.in`` file in your **project root**.
 
 Below is a sample ``MANIFEST.in`` file that includes logme.ini::
 
