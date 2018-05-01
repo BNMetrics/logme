@@ -48,6 +48,9 @@ class TestConfig:
         with pytest.raises(InvalidConfig):
             read_config('blah.ini')
 
+    def test_read_config_type_error(self):
+        pass
+
     def test_get_ini_file_path(self):
         conf_path = get_ini_file_path(__file__)
 

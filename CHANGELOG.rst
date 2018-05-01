@@ -2,6 +2,17 @@
 CHANGELOG
 =========
 
+
+1.0.7 (2018-05-01)
+==================
+
+**Bug Fixes**
+
+- Minor change in ``config.py::read_config()``, ensure ConfigParser.read() accepts string format filepath. As os.Pathlike is not
+  available in older version of python3, e.g 3.6.0
+
+
+
 1.0.6 (2018-04-30)
 ==================
 

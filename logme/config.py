@@ -43,11 +43,8 @@ def read_config(file_path: Union[str, Path]) -> ConfigParser:
     config = ConfigParser()
     config.optionxform = str
 
-    # Update on config.read on string format file_path to work with older version of python
-    try:
-        config.read(file_path)
-    except TypeError:
-        config.read(str(file_path))
+    # Update on config.read on string format file_path to work with older version of python, e.g. 3.6.0
+    config.read(str(file_path))
 
     if not config.sections():
         raise InvalidConfig(f"{file_path} is not a valid config file.")
