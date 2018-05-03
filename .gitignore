@@ -7,6 +7,7 @@ logme.egg-info/
 *.egg
 __pycache__
 tests/__pycache__
+notes.txt
 
 build/
 docs/_build

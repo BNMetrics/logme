@@ -23,6 +23,31 @@ class TestConfig:
         assert type(conf_content['FileHandler']) == dict
         assert conf_content['level'] == expected_level
 
+    def test_get_config_content_ver11(self):
+        """
+        Added for v1.1.0, ensure get_config_content() works with both v1.1.* and v1.0.*
+        """
+        expected = {'level': 'DEBUG',
+                    'formatter': '{asctime} - {name} - {levelname} - {message}',
+                    'stream': {
+                        'type': 'StreamHandler',
+                        'active': True,
+                        'level': 'INFO'},
+                    'file': {
+                        'type': 'FileHandler',
+                        'active': False,
+                        'level': 'DEBUG',
+                        'filename': 'mylogpath/foo.log'},
+                    'null':
+                        {
+                            'type': 'NullHandler',
+                            'active': False,
+                            'level': 'DEBUG'}
+                    }
+        conf_content = get_config_content(__file__, 'ver11_config')
+
+        assert conf_content == expected
+
     def test_get_config_content_raise(self):
         with pytest.raises(InvalidConfig):
             get_config_content(__file__, 'blah')
@@ -47,7 +72,7 @@ class TestConfig:
 
         with pytest.raises(InvalidConfig):
             read_config('blah.ini')
-            
+
     def test_get_ini_file_path(self):
         conf_path = get_ini_file_path(__file__)
 

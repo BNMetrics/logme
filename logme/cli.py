@@ -66,7 +66,7 @@ def cli():
 
     Make a new logger config in existing config file:
 
-        >>> logme logger my_logger
+        >>> logme add my_logger
 
     """
 
@@ -75,9 +75,12 @@ def cli():
 @click.option('--mkdir', '-mk',
               help='Create the directory in which logme.ini resides.',
               is_flag=True)
+@click.option('--override', '-o',
+              help='Use this flag to override the current logme.ini file',
+              is_flag=True)
 @add_options()
 @click.pass_context
-def init(ctx, project_root, mkdir, level, formatter, log_path):
+def init(ctx, project_root, override, mkdir, level, formatter, log_path):
     """
     Entry point.
 
@@ -97,6 +100,9 @@ def init(ctx, project_root, mkdir, level, formatter, log_path):
                                      f"like to make the directory, please use '-mk' flag.")
         else:
             abs_path.mkdir(parents=True, exist_ok=True)
+
+    if conf_location.exists() and not override:
+        raise LogmeError(f"logme.ini already exists at {conf_location}")
 
     with conf_location.open('w') as conf:
         config.write(conf)
@@ -144,6 +150,17 @@ def remove(ctx, name, project_root):
             config.write(conf)
 
 
+# TODO: complete!! logme update --from-ver=1.0
+@cli.command()
+@add_options(['project_root'])
+@click.pass_context
+def update(ctx, name, project_root):
+    pass
+
+
+# ---------------------------------------------------------------------------
+# Helper functions
+# ---------------------------------------------------------------------------
 @contextmanager
 def ensure_conf_exist(project_root: str) -> Path:
     """

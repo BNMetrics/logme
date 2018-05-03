@@ -5,6 +5,7 @@ from click.testing import CliRunner
 
 from logme.cli import cli
 from logme.config import get_config_content
+from logme.providers import LogmeLogger
 
 
 @pytest.fixture(scope='class')
@@ -26,6 +27,28 @@ def file_config_content(tmpdir):
     config['FileHandler']['filename'] = tmpdir.join(config['FileHandler']['filename'])
 
     yield config
+
+
+@pytest.fixture
+def logger_from_provider():
+    config = get_config_content(__file__)
+    logger = LogmeLogger('test_logger', config)
+
+    yield logger
+
+    for i in logger.logger.handlers:
+        logger.removeHandler(i)
+
+
+@pytest.fixture
+def ver11_logger():
+    ver11_conf = get_config_content(__file__, 'ver11_config')
+    ver11_logger = LogmeLogger('test_ver11', ver11_conf)
+
+    yield ver11_logger
+
+    for i in ver11_logger.logger.handlers:
+        ver11_logger.removeHandler(i)
 
 
 # ---------------------------------------------------------------------------

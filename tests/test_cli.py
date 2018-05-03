@@ -6,7 +6,7 @@ from click.testing import CliRunner
 
 from logme.exceptions import LogmeError
 from logme.utils import cd, conf_item_to_dict
-from logme.config import read_config
+from logme.config import read_config, get_config_content
 from logme.cli import (cli, get_tpl, check_options, map_template,
                        get_config, validate_conf, ensure_conf_exist)
 
@@ -82,15 +82,45 @@ class TestCli:
         assert conf_item_to_dict(fh_conf)['filename'] == tmp.join('var/log/dummy.log')
         assert set(conf_item_to_dict(fh_conf).keys()) == {'active', 'level', 'filename'}
 
-    def test_init_raise(self, tmpdir):
+    def test_init_raise_invalid_dir(self, tmpdir):
 
-        with pytest.raises(NotADirectoryError) as e_info:
-            with cd(tmpdir):
-                result = self.runner.invoke(cli, ['init', '-p', 'blah'])
+        with cd(tmpdir):
+            result = self.runner.invoke(cli, ['init', '-p', 'blah'])
+
+            with pytest.raises(NotADirectoryError) as e_info:
                 raise result.exception
 
-        assert e_info.value.args[0] == f"{tmpdir.join('blah')} does not exist. If you'd " \
-                                       f"like to make the directory, please use '-mk' flag."
+            assert e_info.value.args[0] == f"{tmpdir.join('blah')} does not exist. If you'd " \
+                                           f"like to make the directory, please use '-mk' flag."
+
+    def test_init_raise_conf_exists(self, tmpdir):
+
+        with cd(tmpdir):
+            self.runner.invoke(cli, ['init'])
+            logme_path = Path(tmpdir) / 'logme.ini'
+            assert logme_path.exists()
+
+            result = self.runner.invoke(cli, ['init'])
+
+            with pytest.raises(LogmeError) as e_info:
+                raise result.exception
+
+            assert e_info.value.args[0] == f"logme.ini already exists at {logme_path}"
+
+    def test_init_override(self, tmpdir):
+
+        with cd(tmpdir):
+            # Before override
+            self.runner.invoke(cli, ['init', '-lvl', 'error'])
+            logme_path = Path(tmpdir) / 'logme.ini'
+
+            conf_content_before = get_config_content(logme_path)
+            assert conf_content_before['level'] == 'ERROR'
+
+            self.runner.invoke(cli, ['init', '-o'])
+            conf_content_after = get_config_content(logme_path)
+            assert conf_content_after['level'] == 'DEBUG'
+
 
     # ---------------------------------------------------------------------------
     # 'logme add' test
@@ -217,16 +247,19 @@ class TestCli:
             'formatter': None,
             'StreamHandler':
                 {
+                    'active': True,
                     'level': 'INFO',
                     'formatter': None
                 },
             'FileHandler':
                 {
+                    'active': True,
                     'level': 'NOTSET',
                     'log_path': None
                 },
             'NullHandler':
                 {
+                    'active': True,
                     'level': 'NOTSET'
                 }
         }
