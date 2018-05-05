@@ -104,8 +104,8 @@ class TestLogmeLogger:
 
         w_info = record.pop()
         assert w_info.category == DeprecationWarning
-        assert w_info.message == "Current configuration is deprecated, run 'logme upgrade' in " \
-                                 "your project root to upgrade your logme.ini file"
+        assert str(w_info.message) == "Current configuration is deprecated, run 'logme upgrade' in " \
+                                      "your project root to upgrade your logme.ini file"
 
     def test_set_handlers_handler_level_config(self, tmpdir):
         """
