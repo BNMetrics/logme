@@ -3,6 +3,19 @@ CHANGELOG
 =========
 
 
+
+1.1.0 (2018-05-05)
+==================
+
+**Improvements**
+
+- allowing multiple of the same type of handlers to be added, and retrieved by name
+- added version to the cli, to check version, do ``logme -v``
+- added ``upgrade`` command to upgrade ``logme.ini`` file to current version
+
+
+
+
 1.0.7 (2018-05-01)
 ==================
 

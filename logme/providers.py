@@ -1,4 +1,5 @@
 import inspect
+import warnings
 
 from typing import Callable, Union
 
@@ -175,6 +176,11 @@ class LogmeLogger:
         try:
             handler_type = self.config[handler_name]['type']
         except KeyError:
+            # Deprecation warning
+            warnings.warn("Current configuration is deprecated, run 'logme upgrade' in your "
+                          "project root to upgrade your logme.ini file",
+                          category=DeprecationWarning)
+
             handler_type = handler_name
 
         return handler_type
@@ -307,25 +313,25 @@ class LogmeLogger:
 
         return handler_attr
 
-    def reset_config(self, config_name: str=None, config: dict=None, name: str=None):
+    def reset_config(self, config: str=None, config_dict: dict=None, name: str=None):
         """
         Used for alternative config. This is normally used for module scope loggers
 
-        :param config_name: config names specified in the config
-        :param config: config dict
+        :param config: config name specified in the config
+        :param config_dict: config dict
         :param name: logger name to be changed to
         """
         # Check if the arguments are valid
-        if config and config_name:
+        if config and config_dict:
             raise InvalidOption("Can only set keyword argument of either 'config_name' or 'config', not both.")
-        if not config and not config_name:
-            raise InvalidOption("must specify one of 'config_name' or 'config'.")
+        if not config and not config_dict:
+            raise InvalidOption("must specify one of 'config_dict' or 'config'.")
 
         caller_file_path = inspect.getframeinfo(inspect.currentframe().f_back).filename
-        if config_name:
-            self.config = get_config_content(caller_file_path, config_name)
+        if config:
+            self.config = get_config_content(caller_file_path, config)
         else:
-            self.config = config
+            self.config = config_dict
 
         if name:
             self.name = name
@@ -343,9 +349,9 @@ class LogmeLogger:
         Reconfigure an existing handler's level and formatter.
         *This can be used to configure a handler for a specific logger to be different from the config in Logme.ini*
 
-        :param handler_name: **case sensitive**. name of the handler, e.g: StreamHandler, FileHandler
+        :param handler_name: **case sensitive**. name of the handler, specified as a option key in ini file
         :param level: the new level to be set
-        :param formatter: the new formatter to be set. '{' format
+        :param formatter: the new formatter to be set. '{' style
 
         """
         if not level and not formatter:

@@ -15,6 +15,7 @@ from .cli import cli
 from .utils import check_scope
 from .exceptions import LogmeError, MisMatchScope
 from .providers import LogProvider, ModuleLogger
+from .__version__ import __version__
 
 
 def log(scope: str=None, config: str=None, name: str=None):
@@ -70,4 +71,3 @@ def _get_logger_decorator(callable_: callable, config: str=None, name: str=None,
     raise LogmeError(f"'{callable_}' must be a 'class' or a 'function'.")
 
 
-__version__ = '1.0.7'

@@ -2,9 +2,11 @@ import pytest
 
 from pathlib import Path
 
+from configparser import ConfigParser
+
 from logme.exceptions import InvalidOption
-from logme.utils import (dict_to_conf, conf_to_dict, ensure_dir, check_scope,
-                         conf_item_to_dict, strip_blank_recursive, cd)
+from logme.utils import (flatten_config_dict, conf_to_dict, dict_to_config,
+                         ensure_dir, check_scope, conf_item_to_dict, strip_blank_recursive, cd)
 
 
 class TestPackageUtils:
@@ -67,7 +69,6 @@ class TestPackageUtils:
 
         assert conf_item_to_dict(parse_item) == expected
 
-
     @pytest.mark.parametrize('parse_option',
                              [pytest.param(['blah', 'test'], id='when option passed is a list'),
                               pytest.param(20, id='when option passed is an int'),
@@ -79,11 +80,45 @@ class TestPackageUtils:
         with pytest.raises(InvalidOption):
             conf_item_to_dict(parse_option)
 
-    def test_dict_to_conf(self):
+    def test_flatten_config_dict(self):
 
-        flattened = dict_to_conf(self.sample_dict)
+        flattened = flatten_config_dict(self.sample_dict)
 
         assert flattened == self.sample_conf_dict
+
+    def test_dict_to_config(self):
+
+        conf_content = {'test': {'hello': 1}}
+        config = dict_to_config(conf_content)
+
+        assert type(config) == ConfigParser
+        assert config.sections() == ['test']
+
+    def test_dict_to_config_option_not_str(self):
+        content = {
+            'test': {
+                'level': 'DEBUG',
+                'formatter': None,
+                'stream': {
+                    'type': 'StreamHandler',
+                    'active': True,
+                    'level': 'DEBUG',
+                },
+                'file': {
+                    'type': 'FileHandler',
+                    'active': False,
+                    'level': 'DEBUG',
+                    'filename': 'mylogpath/foo.log',
+                },
+                'null': {
+                    'type': 'NullHandler',
+                    'active': False,
+                    'level': 'NOTSET'
+                },
+            }
+        }
+        with pytest.raises(TypeError):
+            dict_to_config(content)
 
     @pytest.mark.parametrize('parse_dict',
                              [pytest.param({'test': 'test1', 'int_val': 1},
@@ -91,9 +126,9 @@ class TestPackageUtils:
                               pytest.param({'test': 'test1', 'list_val': [1,2,3,4,5]},
                                            id='when one of the dict value is list')
                               ])
-    def test_dict_to_conf_raise(self, parse_dict):
+    def test_flatten_config_dict_raise(self, parse_dict):
         with pytest.raises(ValueError):
-            dict_to_conf(parse_dict)
+            flatten_config_dict(parse_dict)
 
     @pytest.mark.parametrize('iterable_, expected',
                              [pytest.param(['hello ', '\nhi ', 1], ['hello', 'hi', 1],

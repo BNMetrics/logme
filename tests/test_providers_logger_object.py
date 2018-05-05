@@ -99,6 +99,14 @@ class TestLogmeLogger:
         handler_type = logger_from_provider._get_handler_type('FileHandler')
         assert handler_type == 'FileHandler'
 
+        with pytest.warns(DeprecationWarning) as record:
+            logger_from_provider._get_handler_type('FileHandler')
+
+        w_info = record.pop()
+        assert w_info.category == DeprecationWarning
+        assert w_info.message == "Current configuration is deprecated, run 'logme upgrade' in " \
+                                 "your project root to upgrade your logme.ini file"
+
     def test_set_handlers_handler_level_config(self, tmpdir):
         """
         Ensure master_level applies to handlers without *level* config set on individual handler
@@ -244,7 +252,7 @@ class TestLogmeLogger:
         assert type(logger_from_provider.handlers['StreamHandler']) == logging.StreamHandler
         assert list(logger_from_provider.handlers.keys()) == ['StreamHandler']
 
-        logger_from_provider.reset_config(config_name='socket_config')
+        logger_from_provider.reset_config(config='socket_config')
 
         # Test reset changes
         assert type(logger_from_provider.handlers['SocketHandler']) == logging.handlers.SocketHandler
@@ -256,17 +264,17 @@ class TestLogmeLogger:
         assert logger.name == 'rename_logger'
 
         config = get_config_content(__file__, name='socket_config')
-        logger.reset_config(config=config, name='logger_new_name')
+        logger.reset_config(config_dict=config, name='logger_new_name')
 
         assert logger.name == 'logger_new_name'
 
     @pytest.mark.parametrize('args, message',
-                             [pytest.param({'config_name': 'socket_config', 'config': {'formatter': 'hello'}},
+                             [pytest.param({'config': 'socket_config', 'config_dict': {'formatter': 'hello'}},
                                            "Can only set keyword argument of either "
                                            "'config_name' or 'config', not both.",
                                            id='InvalidOption raised when both config_name and config are set'),
-                              pytest.param({}, "must specify one of 'config_name' or 'config'.",
-                                           id="InvalidOption raised when neither config_name nor config are set")])
+                              pytest.param({}, "must specify one of 'config_dict' or 'config'.",
+                                           id="InvalidOption raised when neither config_dict nor config are set")])
     def test_reset_handlers_raise(self, logger_from_provider, args, message):
         with pytest.raises(InvalidOption) as e_info:
             logger_from_provider.reset_config(**args)

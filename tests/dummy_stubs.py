@@ -105,6 +105,14 @@ def dummy_func_change_handler_level(logger=None):
     return logger
 
 
+@logme.log(name='ve11_handler_formatter_reconfig', config='ver11_config')
+def ver11_handler_formatter_reconf(my_arg, logger=None):
+    logger.reconfig_handler('stream', formatter='{funcName} - {levelname} :: {message}')
+    logger.error(my_arg)
+
+    return logger
+
+
 @logme.log(name='config_change_logger')
 class DummyClassChangeConfig:
     def __init__(self):

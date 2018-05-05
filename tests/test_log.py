@@ -101,7 +101,7 @@ def test_mismatch_scope_class():
 def test_change_logging_config(file_config_content):
     assert module_logger.logger.name == 'change_config'
 
-    module_logger.reset_config(config=file_config_content, name='changed_name')
+    module_logger.reset_config(config_dict=file_config_content, name='changed_name')
 
     log_path = Path(file_config_content['FileHandler']['filename'])
     assert log_path.exists()
@@ -117,20 +117,20 @@ def test_change_logging_master_level():
     logger = dummy_func_change_master_level()
 
     assert logger.level == 40
-    assert logger.handlers[0].level == 40
+    assert logger.handlers['StreamHandler'].level == 40
 
 
 def test_change_logging_master_formatter():
     logger = dummy_func_change_master_format()
 
     assert logger.master_formatter._fmt == '{funcName}::{message}'
-    assert logger.handlers[0].formatter._fmt == '{funcName}::{message}'
+    assert logger.handlers['StreamHandler'].formatter._fmt == '{funcName}::{message}'
 
 
 def test_change_master_formatter_handler_unaffected():
     logger = dummy_func_change_master_format_with_handler_unaffected()
 
-    handler = logger.get_handler_by_name('StreamHandler')
+    handler = logger.handlers['StreamHandler']
     assert logger.master_formatter._fmt == '{funcName} - {message}'
     assert handler.formatter._fmt == '{funcName} :: {levelname} :: {message}'
 
@@ -140,16 +140,23 @@ def test_class_logger_handler_level_change():
     
     obj.change_my_level()
     
-    assert obj.logger.handlers[0].level == 50
+    assert obj.logger.handlers['StreamHandler'].level == 50
 
 
 def test_function_handler_level_change():
     logger = dummy_func_change_handler_level()
 
-    handler = logger.get_handler_by_name('StreamHandler')
+    handler = logger.handlers['StreamHandler']
     assert handler.level == 30
     assert logger.level == logger.master_level == 10
 
+
+def test_v11_handler_formatter_reconf():
+    logger = ver11_handler_formatter_reconf('hello')
+
+    handler = logger.handlers['stream']
+    assert handler.level == 20
+    assert handler.formatter._fmt == '{funcName} - {levelname} :: {message}'
 
 # ---------------------------------------------------------------------------
 # Tests for others, _get_logger_decorator()

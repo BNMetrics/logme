@@ -39,36 +39,42 @@ Then you will see a configuration file 'logme.ini' created, it looks like this:
     [logme]
     level = DEBUG
     formatter = {asctime} - {name} - {levelname} - {message}
-    StreamHandler =
+    stream =
+        type: StreamHandler
         active: True
-        level: DEBUG
-    FileHandler =
-        active: True
-        level: DEBUG
-        filename: None
-    NullHandler =
+        level: INFO
+    file =
+        type: FileHandler
         active: False
-        level: NOTSET
+        level: DEBUG
+        filename: mylogpath/foo.log
+    null =
+        type: NullHandler
+        active: False
+        level: DEBUG
 
 This is the file where you add configurations for your logging. each block of configuration is independent,
-and you can apply the same configuration blog to different loggers. You can have as many of them as you like.
+and you can apply the same configuration section to different loggers. You can have as many of them as you like.
 
-.. note:: Toplevel **level** and **formatter** are master level handler configurations.
-   This means if the level or/and formatter on each handler are not specified,
-   the handlers will use the master level ones. With that said, *level* and *formatter* can be configured
-   on handler level by adding these to each handler.
+.. note:: The top level ``level`` and ``formatter`` are master level handler configurations.
+   This means if the level or/and formatter on each handler ('steam', 'file', 'null' block in the example) are not specified,
+   the handlers will use the master level ones.
+
+   With that said, ``level`` and ``formatter`` can be configured on handler level by adding these to each handler.
 
 Few things to keep in mind when making changes to the configuration:
 
-- When you set '*active*' to **True** for specific handler, any logger using this configuration will have the handler added.
-- Handler names must be the same as the ones in the **logging** module, including casing.
+- When you set ``'active'`` to **True** for specific handler, any logger using this configuration will have the handler added.
+- keys such as 'stream, file, null' are the name you can assign to handlers, each name much be unique.
+- ``'type'`` must be the same as the ones in the **logging** module, e.g ``StreamHandler``, and it is **case sensitive**.
 - All the required arguments passed to specific handler must be specified in the configuration. For example,
   if I were to add a `SocketHandler <https://docs.python.org/3.6/library/logging.handlers.html#sockethandler>`_,
   I will need to pass in *host* and *port*, like so:
 
 .. code-block:: ini
 
-    SocketHandler =
+    socket =
+        type: SocketHandler
         active: True
         level: ERROR
         host: 127.0.0.9
@@ -90,30 +96,36 @@ Then you will see a new configuration added onto 'logme.ini'.
     [logme]
     level = DEBUG
     formatter = {asctime} - {name} - {levelname} - {message}
-    StreamHandler =
+    stream =
+        type: StreamHandler
         active: True
-        level: DEBUG
-    FileHandler =
-        active: True
-        level: DEBUG
-        filename: None
-    NullHandler =
+        level: INFO
+    file =
+        type: FileHandler
         active: False
-        level: NOTSET
+        level: DEBUG
+        filename: mylogpath/foo.log
+    null =
+        type: NullHandler
+        active: False
+        level: DEBUG
 
     [my_new_configuration_name]
     level = DEBUG
     formatter = {asctime} - {name} - {levelname} - {message}
-    StreamHandler =
+    stream =
+        type: StreamHandler
         active: True
-        level: DEBUG
-    FileHandler =
-        active: True
-        level: DEBUG
-        filename: None
-    NullHandler =
+        level: INFO
+    file =
+        type: FileHandler
         active: False
-        level: NOTSET
+        level: DEBUG
+        filename: mylogpath/foo.log
+    null =
+        type: NullHandler
+        active: False
+        level: DEBUG
 
 Removing a Config
 ~~~~~~~~~~~~~~~~~
@@ -135,13 +147,6 @@ _____________________________________________________________________
 
 To use loggers in your project, you can simply use *logme.log* as a decorator or call it as a method,
 without having to configure each logger manually in your code.
-
- :red:`logme.log()` can accepts 3 optional arguments for customize your logger:
-    * **scope**: the scope of your logger: *class*, *function* or *module*. You can omit this parameter for class and
-      function. **this is required for module level logger**
-    * **config**: the name of logging config specified in logme.ini, default would be the *logme* config
-    * **name**: the name of the logger, default would be the __name__ of the file where you are calling logme.log, or using the logme.log decorator.
-
 
 
 Logging for functions and methods
@@ -183,4 +188,18 @@ Logging modules is slightly different from classes and functions, but it's just 
 .. code-block:: python
 
     module_logger = logme.log(scope='module', name='my_module_logger')
+
+
+
+
+**Reference**:
+~~~~~~~~~~~~~~
+
+``logme.log(scope: str=None, config: str=None, name: str=None)``
+     **parameters**:
+        - ``scope``: the scope of your logger: *class*, *function* or *module*. You can omit this parameter for class and
+          function. **this is required for module level logger**
+        - ``config``: the name of logging config specified in logme.ini, default would be the *logme* config
+        - ``name``: the name of the logger, default would be the __name__ of the file where you are calling logme.log, or using the logme.log decorator.
+
 

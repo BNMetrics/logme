@@ -4,6 +4,7 @@ from typing import List, Union
 
 from pathlib import Path
 from contextlib import contextmanager
+from configparser import ConfigParser
 
 from .exceptions import InvalidOption, LogmeError
 
@@ -12,7 +13,7 @@ def conf_to_dict(conf_section: List[tuple]) -> dict:
     """
     Converting the Configparser section to a dictionary format
 
-    :param conf_section: values from config.items('section') or config['section']
+    :param conf_section: values from config.items('section') or dict(config['section'])
     """
 
     return {i[0]: conf_item_to_dict(i[1]) if '\n' in i[1] else i[1]
@@ -39,7 +40,7 @@ def conf_item_to_dict(parse_option: str) -> dict:
         raise InvalidOption(f"{parse_option} is not a valid option, please follow the convention of 'key: value'")
 
 
-def dict_to_conf(parse_dict: dict) -> dict:
+def flatten_config_dict(parse_dict: dict) -> dict:
     """
     flatten nested dict for logme configuration file
     """
@@ -60,6 +61,29 @@ def dict_to_conf(parse_dict: dict) -> dict:
         flattened[k] = str_val
 
     return flattened
+
+
+def dict_to_config(conf_content: dict) -> ConfigParser:
+    """
+    Convert a dict to ConfigParser Object
+
+    :param conf_content: nested dict
+                         e.g {'section_name': {
+                                                'option1': 'val1',
+                                                'option2': 'val2',
+                                              }
+                              }
+
+    :return: configpaser.Configparser
+    """
+    config = ConfigParser()
+    # preserve casing
+    config.optionxform = str
+
+    for k, v in conf_content.items():
+        config[k] = v
+
+    return config
 
 
 def strip_blank_recursive(nested_list: list):

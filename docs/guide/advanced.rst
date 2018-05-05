@@ -43,32 +43,34 @@ Logger Delegation
 -----------------
 _____________________________________________________________________
 
-If you are making a distributed or installable package, and you still want to include logging.
-You can easy do this with logme package.
+If you are making a distributed or installable package, and you still want to include logging without disrupting the user of your package.
+You can easy do so with logme package.
 
 The following are the simple steps:
 
 1. Have only the **NullHandler** set to '*active*' in your project root logme.ini file. This
    will ensure logging messages do not get output unless the configuration is changed.
 
-2. In your __init__.py file, make a module logger, like so:
+2. In your ``__init__.py`` file, make a module logger, like so:
 
 .. code-block:: python
 
     logger = logme.log(scope='module')
 
+
 3. Import this logger throughout your project. Take note that this means the whole project will be
    logged with this single logger.
 
 
-4. If user need to see the logging messages, they can then import the logger and change the configuration.
+4. If the package user need to include the logging messages from your package, they can then import the logger and change the configuration.
    There are two ways to reset the logging configuration, see below:
+
 
 I: Using logme config name:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Assuming if the user of the package also have initialized in their project root, you can reset the configuration
-by directly passing in the configuration name with **config_name** argument.
+Assuming if the user of the package also have initialized ``logme`` in their project root, you can reset the configuration
+by directly passing in the configuration name with **config** argument.
 
 **Example**:
 
@@ -76,13 +78,13 @@ by directly passing in the configuration name with **config_name** argument.
 
     from your_project import logger
 
-    logger.reset_configuration(config_name='my_own_logger')
+    logger.reset_configuration(config='my_own_logger')
 
 
 
 II: Using a config dictionary:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configuration can also be passed in as a dictionary with **config** argument.
+Configuration can also be passed in as a dictionary with **config_dict** argument.
 
 **config structure:**
 
@@ -91,8 +93,9 @@ Configuration can also be passed in as a dictionary with **config** argument.
     {
         'level': 'string',
         'format': 'string',
-        'handler1': {
+        'handler_name': {
             'active': True,
+            'type': 'FileHandler'
             'level': 'string', # Optional
             'formatter': 'string', # Optional
             'handler_arg1': 'mixed', # This is the argument you pass into specific handler
@@ -109,11 +112,13 @@ Configuration can also be passed in as a dictionary with **config** argument.
     config = {
                 "level": "DEBUG",
                 "format": "{levelname}: {message}",
-                "StreamHandler": {
+                "debug_stream": {
+                    "type": "StreamHandler",
                     "active": True,
                     "level": "DEBUG",
                 },
-                "FileHandler": {
+                "file_debug": {
+                    "type": "FileHandler",
                     "active": True,
                     "level": "DEBUG",
                     "filename": "/var/log/mylog.log",
@@ -121,24 +126,25 @@ Configuration can also be passed in as a dictionary with **config** argument.
             }
 
     }
-    logger.reset_configuration(config=config)
+    logger.reset_configuration(config_dict=config)
 
 
 
 **Reference**:
 ~~~~~~~~~~~~~~
 
-``reset_config(config_name: str=None, config: dict=None, name: str=None)``
+``reset_config(config: str=None, config_dict: dict=None, name: str=None):``
     **parameters**:
-        - config_name: (*optional*) configuration(ini file section) name from logme.ini
-        - config: (*optional*) configuration dictionary
-        - name: (*optional*) The new name for the logger
-    One of ``config_name`` or ``config`` must be specified
+        - ``config``: (*optional*) configuration(ini file section) name from logme.ini
+        - ``config_dict``: (*optional*) configuration dictionary
+        - ``name``: (*optional*) The new name for the logger
+    **notes**:
+        - One of ``config_dict`` or ``config`` must be specified
 
 
 
 Adhoc Config change
------------------
+-------------------
 _____________________________________________________________________
 
 If you would like to change the logger configuration for specific logger, but do not want to change the config in ``logme.ini`` file,
@@ -187,14 +193,14 @@ Instead of configuring ``master_level`` and ``master_formatter``, you can also c
 
     @logme.log
     def changing_logger_level(logger=None):
-        logger.reconfig_handler('StreamHandler', level='WARNING')
+        logger.reconfig_handler('stream', level='WARNING')
 
         return logger
 
 
     @logme.log
     def changing_logger_formatter(logger=None):
-        logger.reconfig_handler('StreamHandler', formatter='{funcName}::{message}')
+        logger.reconfig_handler('file', formatter='{funcName}::{message}')
 
         return logger
 
@@ -209,9 +215,9 @@ Instead of configuring ``master_level`` and ``master_formatter``, you can also c
 
 ``reconfig_handler(handler_name: str, level: Union[str, int]=None, formatter: str=None)``
     **parameters**:
-        - config_name: **case sensitive**. Type of the handler, e.g: StreamHandler, FileHandler
-        - level: (*optional*) The new level to be set
-        - formatter: (*optional*) the new formatter to be set. '{' style.
+        - ``config_name``: **case sensitive**. Type of the handler, specified as a option key in ini file
+        - ``level``: (*optional*) The new level to be set
+        - ``formatter``: (*optional*) the new formatter to be set. '{' style.
 
 
 

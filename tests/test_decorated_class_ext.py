@@ -1,4 +1,3 @@
-import pytest
 import types
 
 from .dummy_stubs import (DummyClassForExtension, dummy_function_default,
