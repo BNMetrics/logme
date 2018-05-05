@@ -14,15 +14,13 @@
 #
 import os
 import sys
+import logme
+from datetime import datetime
 
 sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
-
-import logme
-from datetime import datetime
-
 project = 'Logme'
 copyright = str(datetime.now().year) + ', Luna Chen'
 author = 'Luna Chen'
@@ -70,7 +68,7 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'monokai'
 
 
 # -- Options for HTML output -------------------------------------------------
