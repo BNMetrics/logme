@@ -14,26 +14,6 @@ class TestLogmeLogger:
     @classmethod
     def setup_class(cls):
         cls.config = get_config_content(__file__)
-    # def setup_method(self, method):
-    #     self.config = get_config_content(__file__)
-    #     self.logger = LogmeLogger('test_logger', self.config)
-    #
-    #     self.ver11_conf = get_config_content(__file__, 'ver11_config')
-    #     self.ver11_logger = LogmeLogger('test_ver11', self.ver11_conf)
-    #
-    # def teardown_method(self, method):
-    #     # for i, j in zip(logger_from_provider.logger.handlers, self.ver11_logger.logger.handlers):
-    #     #     logger_from_provider.removeHandler(i)
-    #     #     self.ver11_logger.removeHandler(j)
-    #
-    #     for i in logger_from_provider.logger.handlers:
-    #         logger_from_provider.removeHandler(i)
-    #
-    #     for j in self.ver11_logger.logger.handlers:
-    #         self.ver11_logger.removeHandler(j)
-    #
-    #     logger_from_provider.handlers = {}
-    #     self.ver11_logger.handlers = {}
 
     # ---------------------------------------------------------------------------
     # Test overall functionality
