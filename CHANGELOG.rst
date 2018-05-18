@@ -2,6 +2,28 @@
 CHANGELOG
 =========
 
+Dev
+==================
+
+**Bug Fixes**
+
+- Made the ``name`` property in LogmeLogger object unsettable, as overriding/reassignment of this property will create a new
+  logging.Logger object, and this results in lose of configured all handlers.
+
+
+**Improvement**
+
+- Allowing color output in terminal! <3
+
+
+**Misc**
+
+- Added ``get_logger_config()`` in ``config.py`` to allow getting only configuration of loggers in ``logme.ini``.
+  This will enable ``get_config_content()`` to get color configurations
+- Improved testing in ``test_log.py``
+- In ``LogmeLogger.reset_config()``, changed removable of previous handler by deleting the handler from ``logging.Logger.manager.loggerDict``
+  instead of removing handlers
+
 
 
 1.1.0 (2018-05-05)

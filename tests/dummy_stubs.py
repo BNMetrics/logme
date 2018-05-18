@@ -2,10 +2,10 @@ import logme
 
 """Decorator use cases"""
 
+
 # ---------------------------------------------------------------------------
 # Dummy decorated *function*
 # ---------------------------------------------------------------------------
-
 @logme.log
 def dummy_function_default(name, logger=None, **kwargs):
     """Also tests the case of when more kwargs are needed to be passed"""
@@ -68,6 +68,14 @@ def log_this():
     return module_logger
 
 
+# null module handler test
+null_module_logger = logme.log(scope='module', config='null_config', name='null_module')
+
+
+def my_log_null():
+    null_module_logger.info('expect output after config_change')
+
+
 # ---------------------------------------------------------------------------
 # Others: Config change
 # ---------------------------------------------------------------------------
@@ -89,9 +97,13 @@ def dummy_func_change_master_format(logger=None):
     return logger
 
 
-@logme.log(config='logger_with_handler_conf')
+@logme.log(config='logger_with_handler_conf', name='master_unaffected')
 def dummy_func_change_master_format_with_handler_unaffected(logger=None):
     logger.master_formatter = '{funcName} - {message}'
+    logger.disabled = True
+    print(logger.disabled)
+
+    print(logger.logger.__dict__)
 
     logger.info('changed master_formatter, handler formatter should not change')
 

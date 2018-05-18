@@ -5,7 +5,7 @@ from pathlib import Path
 
 import logme.providers
 from logme.providers import LogmeLogger
-from logme.config import get_config_content
+from logme.config import get_logger_config
 from logme.exceptions import DuplicatedHandler, InvalidOption, LogmeError
 
 
@@ -13,7 +13,7 @@ class TestLogmeLogger:
 
     @classmethod
     def setup_class(cls):
-        cls.config = get_config_content(__file__)
+        cls.config = get_logger_config(__file__)
 
     # ---------------------------------------------------------------------------
     # Test overall functionality
@@ -23,6 +23,8 @@ class TestLogmeLogger:
         assert logger_from_provider.level == 10
 
     def test_logging(self, caplog, logger_from_provider):
+        print(logger_from_provider.logger.handlers)
+
         logger_from_provider.info('my logging message')
         captured = caplog.record_tuples[0]
 
@@ -66,9 +68,7 @@ class TestLogmeLogger:
     # ---------------------------------------------------------------------------
     # Test individual methods
     # ---------------------------------------------------------------------------
-    def test_get_handler_args(self, monkeypatch, logger_from_provider):
-        # Patch ensure_dir, so the arbitrary directory is not created
-        monkeypatch.setattr(logme.providers, 'ensure_dir', lambda x: True)
+    def test_get_handler_args(self, logger_from_provider):
 
         args = logger_from_provider._get_handler_args('FileHandler')
         expected = {'filename': 'mylogpath/foo.log'}
@@ -76,6 +76,7 @@ class TestLogmeLogger:
         assert args == expected
 
     def test_get_handler_type(self, logger_from_provider):
+
         handler_type = logger_from_provider._get_handler_type('FileHandler')
         assert handler_type == 'FileHandler'
 
@@ -91,7 +92,7 @@ class TestLogmeLogger:
         """
         Ensure master_level applies to handlers without *level* config set on individual handler
         """
-        config = get_config_content(__file__, 'my_test_logger')
+        config = get_logger_config(__file__, 'my_test_logger')
 
         logger = LogmeLogger('handler_level_conf', config)
 
@@ -185,7 +186,7 @@ class TestLogmeLogger:
             logger_from_provider.add_handler(handler_name, 'FileHandler', formatter='{name}->{message}',
                                              level='debug', filename=str(tmpdir.join('dummy.log')))
 
-    def test_add_handler_allow_dup(self, logger_from_provider):
+    def test_add_handler_allow_dup(self):
         logger = LogmeLogger('allow_duplicate', self.config)
 
         assert len(logger.handlers) == 1
@@ -243,7 +244,7 @@ class TestLogmeLogger:
 
         assert logger.name == 'rename_logger'
 
-        config = get_config_content(__file__, name='socket_config')
+        config = get_logger_config(__file__, name='socket_config')
         logger.reset_config(config_dict=config, name='logger_new_name')
 
         assert logger.name == 'logger_new_name'
@@ -262,7 +263,7 @@ class TestLogmeLogger:
         assert e_info.value.args[0] == message
 
     def test_reconfig_handler(self, tmpdir):
-        config = get_config_content(__file__, 'filehandler_conf')
+        config = get_logger_config(__file__, 'filehandler_conf')
         log_file = Path(tmpdir.join('mylog.log'))
 
         config['FileHandler']['filename'] = str(log_file)

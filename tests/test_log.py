@@ -1,4 +1,5 @@
 import pytest
+import logging
 from pathlib import Path
 
 from .dummy_stubs import *
@@ -95,6 +96,12 @@ def test_mismatch_scope_class():
         class WrongClass: pass
 
 
+def test_module_logger_null_handler():
+    null_module_logger.add_handler('stream', 'StreamHandler', formatter='{name}-{message}', level='debug')
+
+    my_log_null()
+
+
 # ---------------------------------------------------------------------------
 # Tests for config change, master_level/master_formatter
 # ---------------------------------------------------------------------------
@@ -111,6 +118,13 @@ def test_change_logging_config(file_config_content):
         assert file.readline() == "changed_name::change my config.\n"
 
     assert module_logger.logger.name == module_logger.name == 'changed_name'
+
+    # Ensure old logger does not exist
+    assert not logging.Logger.manager.loggerDict.get('change_config')
+
+    old_logger = logging.getLogger('change_config')
+    assert len(old_logger.handlers) == 0
+    assert old_logger.level == 0
 
 
 def test_change_logging_master_level():
@@ -132,12 +146,11 @@ def test_change_master_formatter_handler_unaffected():
 
     handler = logger.handlers['StreamHandler']
     assert logger.master_formatter._fmt == '{funcName} - {message}'
-    assert handler.formatter._fmt == '{funcName} :: {levelname} :: {message}'
+    assert handler.formatter._fmt == '{name} :: {funcName} :: {levelname} :: {message}'
 
 
 def test_class_logger_handler_level_change():
     obj = DummyClassChangeConfig()
-    
     obj.change_my_level()
     
     assert obj.logger.handlers['StreamHandler'].level == 50
@@ -158,11 +171,10 @@ def test_v11_handler_formatter_reconf():
     assert handler.level == 20
     assert handler.formatter._fmt == '{funcName} - {levelname} :: {message}'
 
+
 # ---------------------------------------------------------------------------
 # Tests for others, _get_logger_decorator()
 # ---------------------------------------------------------------------------
 def test_get_logger_decorator_raise():
     with pytest.raises(LogmeError) as e_info:
         _get_logger_decorator('hello')
-
-

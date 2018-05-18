@@ -11,7 +11,7 @@ from .exceptions import InvalidOption, LogmeError
 
 def conf_to_dict(conf_section: List[tuple]) -> dict:
     """
-    Converting the Configparser section to a dictionary format
+    Converting the Configparser *section* to a dictionary format
 
     :param conf_section: values from config.items('section') or dict(config['section'])
     """

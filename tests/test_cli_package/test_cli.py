@@ -7,7 +7,7 @@ from click.testing import CliRunner
 
 from logme.exceptions import LogmeError
 from logme.utils import cd, conf_item_to_dict
-from logme.config import read_config, get_config_content
+from logme.config import read_config, get_logger_config
 from logme import __version__
 
 from logme import cli
@@ -120,11 +120,11 @@ class TestCli:
             self.runner.invoke(cli, ['init', '-lvl', 'error'])
             logme_path = Path(tmpdir) / 'logme.ini'
 
-            conf_content_before = get_config_content(logme_path)
+            conf_content_before = get_logger_config(logme_path)
             assert conf_content_before['level'] == 'ERROR'
 
             self.runner.invoke(cli, ['init', '-o'])
-            conf_content_after = get_config_content(logme_path)
+            conf_content_after = get_logger_config(logme_path)
             assert conf_content_after['level'] == 'DEBUG'
 
     # ---------------------------------------------------------------------------

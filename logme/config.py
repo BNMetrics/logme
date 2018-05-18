@@ -7,14 +7,33 @@ from .utils import conf_to_dict
 from .exceptions import InvalidConfig
 
 
-def get_config_content(caller_file_path: Union[str, Path], name: str=None) -> dict:
+def get_logger_config(caller_file_path: Union[str, Path], name: str=None) -> dict:
     """
-    Get the config section as a dictionary
+    Get logger config as dictionary
 
     :param caller_file_path: file path of the caller, __file__
     :param name: the name(section in logme.ini) of the config to be passed. (optional, default: 'logme')
 
     :return: logger configuration dictionary
+    :raises: InvalidConfig, if name is not in config, or name == 'colors'
+    """
+    if name == 'colors':
+        raise InvalidConfig(f"'colors' cannot be used as a logger configuration")
+
+    if not name:
+        name = 'logme'
+
+    return get_config_content(caller_file_path, name=name)
+
+
+def get_config_content(caller_file_path: Union[str, Path], name: str) -> dict:
+    """
+    Get the config section as a dictionary
+
+    :param caller_file_path: file path of the caller, __file__
+    :param name: the section name in an .ini file
+
+    :return: configuration as dict
     """
 
     init_file_path = get_ini_file_path(caller_file_path)
@@ -22,10 +41,7 @@ def get_config_content(caller_file_path: Union[str, Path], name: str=None) -> di
     config = read_config(init_file_path)
 
     try:
-        if name:
-            conf_section = config.items(name)
-        else:
-            conf_section = config.items('logme')
+        conf_section = config.items(name)
 
         return conf_to_dict(conf_section)
     except NoSectionError:

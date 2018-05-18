@@ -69,5 +69,3 @@ def _get_logger_decorator(callable_: callable, config: str=None, name: str=None,
         return wrapper
 
     raise LogmeError(f"'{callable_}' must be a 'class' or a 'function'.")
-
-

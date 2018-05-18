@@ -1,6 +1,6 @@
 import pytest
 
-from logme.config import get_config_content
+from logme.config import get_logger_config
 from logme.providers import LogProvider, ModuleLogger, LogmeLogger
 
 
@@ -30,7 +30,7 @@ def test_log_decorator_function(args, logger_name, config_name):
     logger = provider.logger
 
     assert logger.name == logger_name
-    assert logger.config == get_config_content(__file__, name=config_name)
+    assert logger.config == get_logger_config(__file__, name=config_name)
 
 
 def test_module_logger(caplog):
@@ -39,7 +39,7 @@ def test_module_logger(caplog):
     assert type(my_logger.logger) == LogmeLogger
     assert my_logger.name == 'test_module_logger'
     assert my_logger.master_formatter._fmt == '{asctime} - {name} - {levelname} - {module}::{funcName}::{message}'
-    assert my_logger.config == get_config_content(__file__)
+    assert my_logger.config == get_logger_config(__file__)
 
     my_logger.info('my test module logger content')
     assert caplog.record_tuples[0] == ('test_module_logger', 20, 'my test module logger content')

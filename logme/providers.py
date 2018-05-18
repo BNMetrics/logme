@@ -6,7 +6,7 @@ from typing import Callable, Union
 import logging
 from logging import handlers as logging_handlers
 
-from .config import get_config_content
+from .config import get_logger_config
 from .utils import ensure_dir
 from .exceptions import InvalidOption, DuplicatedHandler, LogmeError
 
@@ -36,7 +36,7 @@ class LogProvider:
 
         logger_name = name if name else module_obj.__name__
 
-        config_dict = get_config_content(module_obj.__file__, name=config)
+        config_dict = get_logger_config(module_obj.__file__, name=config)
 
         self.logger = LogmeLogger(logger_name, config_dict)
 
@@ -58,7 +58,7 @@ class ModuleLogger:
         module_obj = inspect.getmodule(module_frame.frame)
 
         logger_name = name if name else module_obj.__name__
-        config_dict = get_config_content(module_frame.filename, name=config)
+        config_dict = get_logger_config(module_frame.filename, name=config)
 
         self.logger = LogmeLogger(logger_name, config_dict)
 
@@ -85,7 +85,7 @@ class LogmeLogger:
         :param config: configuration of the logger
         """
 
-        self.name = name
+        self._name = name
         self.config = config
 
         self.handlers = {}
@@ -100,6 +100,17 @@ class LogmeLogger:
             return getattr(self.logger, attr)
         except AttributeError:
             raise AttributeError(f"LogmeLogger object has no attribute '{attr}'.")
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} name={self.name}>"
+
+    @property
+    def name(self):
+        """
+        To prevent name from being set outside of __init__,
+        as the change of name will cause re-instantiation of logging.Logger object.
+        """
+        return self._name
 
     @property
     def logger(self):
@@ -171,7 +182,9 @@ class LogmeLogger:
 
     def _get_handler_type(self, handler_name) -> str:
         """
-        Get the type of the handler, e.g. e.g. StreamHandler, SocketHandler
+        Get the type of the handler from handler_name declared in the config.
+
+        :return: e.g. StreamHandler, SocketHandler
         """
         try:
             handler_type = self.config[handler_name]['type']
@@ -329,16 +342,15 @@ class LogmeLogger:
 
         caller_file_path = inspect.getframeinfo(inspect.currentframe().f_back).filename
         if config:
-            self.config = get_config_content(caller_file_path, config)
+            self.config = get_logger_config(caller_file_path, config)
         else:
             self.config = config_dict
 
-        if name:
-            self.name = name
+        # Remove existing logger from Logger manager dict
+        del logging.Logger.manager.loggerDict[self.name]
 
-        # Remove existing handlers and configure new
-        for i in self.logger.handlers:
-            self.logger.removeHandler(i)
+        if name:
+            self._name = name
 
         self.handlers = {}
         self._set_master_properties()
@@ -363,4 +375,3 @@ class LogmeLogger:
                                  formatter=formatter)
         except KeyError:
             raise LogmeError(f"{handler_name} is not found in this logger, either use add_handle() to add this handler")
-
