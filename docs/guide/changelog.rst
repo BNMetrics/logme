@@ -3,6 +3,23 @@
 Changelog
 =========
 
+v1.2.0 Updates
+--------------
+_____________________________________________________________________
+
+**logme** package now supports color and styling output in the terminal!
+
+The colors and style is **customizable** in ``logme.ini``, here is a screenshot of how it looks like in the terminal:
+
+
+.. image:: _images/demo_color.png
+
+To use color output in logme, make sure your logme package and ``logme.ini`` is :ref:`up-to-date <upgrading>`.
+
+Check the configuration details :ref:`here <colors>`.
+
+
+
 v1.1.0 Updates
 --------------
 _____________________________________________________________________

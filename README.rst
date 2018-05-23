@@ -19,26 +19,21 @@ Logme is a Python package that makes logging simple and robost. If you have foun
 logging in Python not so straight forward, download this package and give it a try! :)
 
 
-v1.1.0 Updates
+v1.2.0 Updates
 --------------
+_____________________________________________________________________
 
-**logme** is now capable of having the same type of handlers with different configuration in ``logme.ini``
+**logme** package now supports color and styling output in the terminal!
 
-To upgrade to the latest version, first you will need to install the latest version of **logme** package
-
-.. code-block:: bash
-
-    $ pip3 install logme --upgrade
+The colors and style is **customizable** in ``logme.ini``, here is a screenshot of how it looks like in the terminal:
 
 
-Then upgrade the ``logme.ini``, run the following command in your project directory where logme.ini resides.
+.. image:: http://logme.readthedocs.io/en/latest/_images/demo_color.png
 
-.. code-block:: bash
+To use color output in logme, make sure your logme package and ``logme.ini`` is `up-to-date <http://logme.readthedocs.io/en/latest/?badge=latest#upgrading>`.
 
-    $ logme upgrade
+Check the configuration details `here <http://logme.readthedocs.io/en/latest/guide/quickstart.html#colors>`.
 
-
-**Note:** v1.1.0+ is backwards compatible, so if you still have the previous version of ``logme.ini``, you will not be affected.
 
 
 In A Nutshell

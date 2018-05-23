@@ -53,7 +53,7 @@ def test_validate_conf_none_valid(tmpdir):
 def test_get_color_tpl():
     expected = {
         'colors': {
-            'CRITICAL': '\ncolor: PURPLE\nstyle: Bold',
+            'CRITICAL': '\ncolor: PURPLE\nstyle: BOLD',
             'ERROR': 'RED',
             'WARNING': 'YELLOW',
             'INFO': 'None',
