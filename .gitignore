@@ -2,6 +2,7 @@
 .idea
 .coverage
 .pytest_cache
+.DS_Store
 coverage.xml
 logme.egg-info/
 *.egg
