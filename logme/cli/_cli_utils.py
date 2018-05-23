@@ -45,6 +45,21 @@ def validate_conf(name: str, ini_file_path: Union[str, Path]):
         raise LogmeError(f"{ini_file_path} is not a valid logme.ini file")
 
 
+def get_color_tpl() -> dict:
+    """
+    Get color template for logme.ini
+    """
+    color_config = {
+        'CRITICAL': {'color': 'PURPLE', 'style': 'BOLD'},
+        'ERROR': 'RED',
+        'WARNING': 'YELLOW',
+        'INFO': 'None',
+        'DEBUG': 'GREEN',
+    }
+
+    return {'colors': flatten_config_dict(color_config)}
+
+
 def get_tpl(name: str, **kwargs: str) -> dict:
 
     """

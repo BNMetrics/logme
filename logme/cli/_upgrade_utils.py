@@ -3,8 +3,14 @@ from typing import Union
 from pathlib import Path
 from copy import deepcopy
 
+from configparser import NoSectionError
+
+from ._cli_utils import get_color_tpl
 from ..config import read_config
 from ..utils import conf_to_dict, dict_to_config, flatten_config_dict
+
+
+NONLOGGER_CONFIGS = ['colors']
 
 
 def upgrade_to_latest(config_path: Union[str, Path]):
@@ -18,11 +24,14 @@ def upgrade_to_latest(config_path: Union[str, Path]):
 
     config_dict_updated = {}
 
-    for i in config.sections():
-        config_dict = conf_to_dict(config.items(i))
-        updated = _upgrade_config_section(config_dict)
+    _upgrade_with_color_config(config, config_dict_updated)
 
-        config_dict_updated[i] = flatten_config_dict(updated)
+    for i in config.sections():
+        if i not in NONLOGGER_CONFIGS:
+            config_dict = conf_to_dict(config.items(i))
+            updated = _upgrade_logging_config_section(config_dict)
+
+            config_dict_updated[i] = flatten_config_dict(updated)
 
     new_conf = dict_to_config(config_dict_updated)
 
@@ -31,8 +40,10 @@ def upgrade_to_latest(config_path: Union[str, Path]):
 
 
 # TODO: add functionality to automatically figure out which version to update
-def _upgrade_config_section(config_dict: dict) -> dict:
+def _upgrade_logging_config_section(config_dict: dict) -> dict:
     """
+    -- v1.1.0 update --
+
     Upgrade the previous version of *individual config(ConfigParser section)* to latest
     
     :param config_dict: Dict of a config section content, *without the section key*
@@ -52,3 +63,21 @@ def _upgrade_config_section(config_dict: dict) -> dict:
             latest[k] = val
 
     return latest
+
+
+def _upgrade_with_color_config(config, config_dict_updated: dict):
+    """
+    -- v1.2.0 update --
+
+    Upgrade the new config dict with color config.
+    * This function updates the original 'config_dict_updated'*
+
+    :param config: the original config to be passed
+    :param config_dict_updated: new config dict to be written to 'logme.ini' file
+    """
+    try:
+        color_config = {'colors': dict(config.items('colors'))}
+    except NoSectionError:
+        color_config = get_color_tpl()
+
+    config_dict_updated.update(color_config)

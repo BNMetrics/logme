@@ -78,7 +78,7 @@ def test_method_with_args(caplog):
     assert age == '1'
     assert other == {'foo': 'hello', 'bar': 'bye'}
 
-    assert caplog.record_tuples[0] == ('another_logger_with_args', 20, 'method logger with args')
+    assert caplog.record_tuples[0] == ('another_logger_with_args', 30, 'method logger with args')
 
 
 def test_mismatch_scope_function():
@@ -96,10 +96,13 @@ def test_mismatch_scope_class():
         class WrongClass: pass
 
 
-def test_module_logger_null_handler():
+def test_module_logger_null_handler(caplog):
     null_module_logger.add_handler('stream', 'StreamHandler', formatter='{name}-{message}', level='debug')
 
     my_log_null()
+
+    assert len(caplog.record_tuples) == 1
+    assert caplog.record_tuples[0] == ('null_module', 50, 'expect output after config_change')
 
 
 # ---------------------------------------------------------------------------
@@ -137,7 +140,7 @@ def test_change_logging_master_level():
 def test_change_logging_master_formatter():
     logger = dummy_func_change_master_format()
 
-    assert logger.master_formatter._fmt == '{funcName}::{message}'
+    assert logger.master_formatter == '{funcName}::{message}'
     assert logger.handlers['StreamHandler'].formatter._fmt == '{funcName}::{message}'
 
 
@@ -145,7 +148,7 @@ def test_change_master_formatter_handler_unaffected():
     logger = dummy_func_change_master_format_with_handler_unaffected()
 
     handler = logger.handlers['StreamHandler']
-    assert logger.master_formatter._fmt == '{funcName} - {message}'
+    assert logger.master_formatter == '{funcName} - {message}'
     assert handler.formatter._fmt == '{name} :: {funcName} :: {levelname} :: {message}'
 
 

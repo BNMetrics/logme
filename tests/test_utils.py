@@ -5,7 +5,7 @@ from pathlib import Path
 from configparser import ConfigParser
 
 from logme.exceptions import InvalidOption
-from logme.utils import (flatten_config_dict, conf_to_dict, dict_to_config,
+from logme.utils import (flatten_config_dict, conf_to_dict, dict_to_config, str_eval,
                          ensure_dir, check_scope, conf_item_to_dict, strip_blank_recursive, cd)
 
 
@@ -18,6 +18,7 @@ class TestPackageUtils:
             "level": "DEBUG",
             "format": "%(levelname)s: %(message)s",
             "StreamHandler": {
+                "active": True,
                 "level": "DEBUG",
             },
             "FileHandler": {
@@ -29,7 +30,7 @@ class TestPackageUtils:
         cls.sample_conf_dict = {
             "level": "DEBUG",
             "format": "%(levelname)s: %(message)s",
-            "StreamHandler": "\nlevel: DEBUG",
+            "StreamHandler": "\nactive: True\nlevel: DEBUG",
             "FileHandler": f"\nlevel: DEBUG"
                            f"\nfilename: /var/log/mylog.log",
         }
@@ -81,10 +82,19 @@ class TestPackageUtils:
             conf_item_to_dict(parse_option)
 
     def test_flatten_config_dict(self):
-
         flattened = flatten_config_dict(self.sample_dict)
 
         assert flattened == self.sample_conf_dict
+
+    @pytest.mark.parametrize('parse_dict',
+                             [pytest.param({'test': 'test1', 'int_val': 1},
+                                           id='when one of the dict value is integer'),
+                              pytest.param({'test': 'test1', 'list_val': [1, 2, 3, 4, 5]},
+                                           id='when one of the dict value is list')
+                              ])
+    def test_flatten_config_dict_raise(self, parse_dict):
+        with pytest.raises(ValueError):
+            flatten_config_dict(parse_dict)
 
     def test_dict_to_config(self):
 
@@ -120,16 +130,6 @@ class TestPackageUtils:
         with pytest.raises(TypeError):
             dict_to_config(content)
 
-    @pytest.mark.parametrize('parse_dict',
-                             [pytest.param({'test': 'test1', 'int_val': 1},
-                                           id='when one of the dict value is integer'),
-                              pytest.param({'test': 'test1', 'list_val': [1,2,3,4,5]},
-                                           id='when one of the dict value is list')
-                              ])
-    def test_flatten_config_dict_raise(self, parse_dict):
-        with pytest.raises(ValueError):
-            flatten_config_dict(parse_dict)
-
     @pytest.mark.parametrize('iterable_, expected',
                              [pytest.param(['hello ', '\nhi ', 1], ['hello', 'hi', 1],
                                            id='when the iterable passed is not nested'),
@@ -149,9 +149,21 @@ class TestPackageUtils:
                                            pytest.param('hello foo bar', id='string value passed'),
                                            pytest.param(('hello', 'hi'), id='tuple value passed')
                                            ])
-    def test_strip_blank_recursive_rase(self, parse_arg):
+    def test_strip_blank_recursive_raise(self, parse_arg):
         with pytest.raises(ValueError):
             strip_blank_recursive(parse_arg)
+
+    @pytest.mark.parametrize('parse_str, expected',
+                             [
+                                 pytest.param('None', None, id='Passing a None value'),
+                                 pytest.param('False', False, id='Passing a boolean value'),
+                                 pytest.param('Hello world', 'Hello world', id='Passing a regular string'),
+                                 pytest.param('[1, 2, 3]', [1,2,3], id='Passing a list value'),
+                             ])
+    def test_str_eval(self, parse_str, expected):
+        result = str_eval(parse_str)
+
+        assert result == expected
 
     @pytest.mark.parametrize('subpath, path_type, expected_path',
                              [pytest.param('test/my_test_dir', 'current', 'test/my_test_dir',

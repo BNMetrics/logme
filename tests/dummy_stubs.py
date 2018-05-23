@@ -53,7 +53,7 @@ class DummyClassWithMethods:
 
     @logme.log(name='another_logger_with_args', config='my_test_logger')
     def method_with_args(self, name, age, logger=None, **kwargs):
-        logger.info('method logger with args')
+        logger.warning('method logger with args')
         return name, age, kwargs
 
 
@@ -73,7 +73,7 @@ null_module_logger = logme.log(scope='module', config='null_config', name='null_
 
 
 def my_log_null():
-    null_module_logger.info('expect output after config_change')
+    null_module_logger.critical('expect output after config_change')
 
 
 # ---------------------------------------------------------------------------
@@ -100,10 +100,6 @@ def dummy_func_change_master_format(logger=None):
 @logme.log(config='logger_with_handler_conf', name='master_unaffected')
 def dummy_func_change_master_format_with_handler_unaffected(logger=None):
     logger.master_formatter = '{funcName} - {message}'
-    logger.disabled = True
-    print(logger.disabled)
-
-    print(logger.logger.__dict__)
 
     logger.info('changed master_formatter, handler formatter should not change')
 

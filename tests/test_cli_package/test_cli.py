@@ -43,7 +43,12 @@ class TestCli:
 
             conf = ConfigParser()
             conf.read(expected_file)
-            assert conf.sections() == ['logme']
+            assert conf.sections() == ['colors', 'logme']
+
+            # Assert the first section is the color config
+            with open(expected_file) as file:
+                line = file.readline()
+                assert line == '[colors]\n'
 
     def test_init_absolute_root_path(self, tmpdir):
 
@@ -142,7 +147,7 @@ class TestCli:
             assert result.exit_code == 0
             assert Path(config_path).is_file()
 
-            assert set(config.sections()) == {'logme', 'blah'}
+            assert set(config.sections()) == {'colors', 'logme', 'blah'}
 
     def test_add_command_no_file(self, tmpdir):
 
@@ -164,22 +169,32 @@ class TestCli:
             config_path = tmpdir.join('logme.ini')
             config_before = read_config(config_path)
 
-            assert set(config_before.sections()) == {'logme', 'test'}
+            assert set(config_before.sections()) == {'colors', 'logme', 'test'}
 
             result = self.runner.invoke(cli, ['remove', 'test'])
             config_after = read_config(config_path)
 
             assert result.exit_code == 0
-            assert config_after.sections() == ['logme']
+            assert config_after.sections() == ['colors', 'logme']
 
-    def test_remove_raise(self, tmpdir):
+    @pytest.mark.parametrize('conf_name, message',
+                             [
+                                 pytest.param('logme', "'logme' master configuration cannot be removed!",
+                                              id='when trying to remove logme master config'),
+                                 pytest.param('colors', "'colors' configuration cannot be removed! To remove "
+                                                       "color logging, set all color values to 'None'",
+                                              id='when trying to remove color config')
+                             ])
+    def test_remove_raise(self, tmpdir, conf_name, message):
 
         with cd(tmpdir):
             self.runner.invoke(cli, ['init'])
 
-            with pytest.raises(LogmeError):
-                result = self.runner.invoke(cli, ['remove', 'logme'])
+            with pytest.raises(LogmeError) as e_info:
+                result = self.runner.invoke(cli, ['remove', conf_name])
                 raise result.exception
+
+            assert e_info.value.args[0] == message
 
     # ---------------------------------------------------------------------------
     # 'logme upgrade' test

@@ -1,3 +1,5 @@
 click
+pytest
+codecov
 Pygments
 pytest-cov

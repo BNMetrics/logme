@@ -1,12 +1,14 @@
 import inspect
 import warnings
 
+from functools import partial
 from typing import Callable, Union
 
 import logging
 from logging import handlers as logging_handlers
 
-from .config import get_logger_config
+from .color_provider import ColorFormatter
+from .config import get_logger_config, get_color_config
 from .utils import ensure_dir
 from .exceptions import InvalidOption, DuplicatedHandler, LogmeError
 
@@ -37,8 +39,10 @@ class LogProvider:
         logger_name = name if name else module_obj.__name__
 
         config_dict = get_logger_config(module_obj.__file__, name=config)
+        color_config = get_color_config(module_obj.__file__)
 
-        self.logger = LogmeLogger(logger_name, config_dict)
+        self.logger = LogmeLogger(logger_name, config_dict,
+                                  color_config=color_config)
 
 
 class ModuleLogger:
@@ -58,9 +62,12 @@ class ModuleLogger:
         module_obj = inspect.getmodule(module_frame.frame)
 
         logger_name = name if name else module_obj.__name__
-        config_dict = get_logger_config(module_frame.filename, name=config)
 
-        self.logger = LogmeLogger(logger_name, config_dict)
+        config_dict = get_logger_config(module_frame.filename, name=config)
+        color_config = get_color_config(module_frame.filename)
+
+        self.logger = LogmeLogger(logger_name, config_dict,
+                                  color_config=color_config)
 
     def __getattr__(self, attr):
         """
@@ -79,7 +86,7 @@ class LogmeLogger:
     Get a logger object with configured handlers
 
     """
-    def __init__(self, name: str, config: dict):
+    def __init__(self, name: str, config: dict, color_config: dict=None):
         """
         :param name: name of the logger
         :param config: configuration of the logger
@@ -87,6 +94,7 @@ class LogmeLogger:
 
         self._name = name
         self.config = config
+        self.color_config = color_config
 
         self.handlers = {}
         self._set_master_properties()
@@ -120,8 +128,16 @@ class LogmeLogger:
         return logger
 
     @property
+    def disabled(self):
+        return self.logger.disabled
+
+    @disabled.setter
+    def disabled(self, val):
+        self.logger.disabled = val
+
+    @property
     def master_formatter(self):
-        return logging.Formatter(self._master_formatter, style='{')
+        return self._master_formatter
 
     @master_formatter.setter
     def master_formatter(self, formatter):
@@ -219,18 +235,28 @@ class LogmeLogger:
             handler.setLevel(self.master_level)
 
         # Set formatter
+        if type(handler) == logging.StreamHandler:
+            formatter_class = partial(ColorFormatter,
+                                      color_config=self.color_config)
+        else:
+            formatter_class = logging.Formatter
+
         if formatter:
-            formatter_object = logging.Formatter(formatter, style='{')
+            formatter_object = formatter_class(formatter, style='{')
             handler.setFormatter(formatter_object)
         elif set_from_master:
-            handler.setFormatter(self.master_formatter)
+            formatter_object = formatter_class(self.master_formatter, style='{')
+            handler.setFormatter(formatter_object)
 
-    def _get_level(self, level: Union[str, int]):
+    def _get_level(self, level: Union[str, int]) -> int:
         """
         Get the level number of the logger
         """
         if isinstance(level, str):
-            return logging.getLevelName(level.upper())
+            try:
+                return logging._nameToLevel[level.upper()]
+            except KeyError:
+                raise InvalidOption(f"'{level}' is not a valid level option")
         if isinstance(level, int):  # logging.ERROR is also type of int
             return level
 

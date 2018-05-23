@@ -16,7 +16,7 @@ def conf_to_dict(conf_section: List[tuple]) -> dict:
     :param conf_section: values from config.items('section') or dict(config['section'])
     """
 
-    return {i[0]: conf_item_to_dict(i[1]) if '\n' in i[1] else i[1]
+    return {i[0]: conf_item_to_dict(i[1]) if '\n' in i[1] else str_eval(i[1])
             for i in conf_section}
 
 
@@ -48,8 +48,8 @@ def flatten_config_dict(parse_dict: dict) -> dict:
 
     for k, v in parse_dict.items():
 
-        if isinstance(v, str):
-            str_val = v
+        if isinstance(v, (str, bool)) or v is None:
+            str_val = str(v)
         elif isinstance(v, dict):
             val_list = [f'{k1}: {v1}' for k1, v1 in v.items()]
 
@@ -66,6 +66,8 @@ def flatten_config_dict(parse_dict: dict) -> dict:
 def dict_to_config(conf_content: dict) -> ConfigParser:
     """
     Convert a dict to ConfigParser Object
+
+    * options must be flattened as string*
 
     :param conf_content: nested dict
                          e.g {'section_name': {
@@ -100,12 +102,21 @@ def strip_blank_recursive(nested_list: list):
         if isinstance(v, list):
             strip_blank_recursive(v)
         elif isinstance(v, str):
-            try:
-                val_ = ast.literal_eval(v.strip())
-            except (ValueError, SyntaxError):  # SyntaxError raised when passing in "{asctime}::{message}"
-                val_ = v.strip()
+            val_ = str_eval(v)
 
             nested_list[i] = val_
+
+
+def str_eval(parse_str: str):
+    """
+    Evaluate string, return the respective object if evaluation is successful,
+    """
+    try:
+        val = ast.literal_eval(parse_str.strip())
+    except (ValueError, SyntaxError):  # SyntaxError raised when passing in "{asctime}::{message}"
+        val = parse_str.strip()
+
+    return val
 
 
 def ensure_dir(dir_path: Union[Path, str], path_type: str='parent'):

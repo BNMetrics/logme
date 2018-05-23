@@ -4,7 +4,7 @@ import logging
 from click.testing import CliRunner
 
 from logme.cli import cli
-from logme.config import get_logger_config
+from logme.config import get_logger_config, get_color_config
 from logme.providers import LogmeLogger
 
 
@@ -32,12 +32,13 @@ def file_config_content(tmpdir):
 @pytest.fixture
 def logger_from_provider():
     config = get_logger_config(__file__)
-    logger = LogmeLogger('test_logger', config)
+    color_conf = get_color_config(__file__)
+
+    logger = LogmeLogger(name='test_logger', config=config, color_config=color_conf)
 
     yield logger
 
-    for i in logger.logger.handlers:
-        logger.removeHandler(i)
+    del logging.Logger.manager.loggerDict['test_logger']
 
 
 @pytest.fixture
@@ -47,8 +48,7 @@ def ver11_logger():
 
     yield ver11_logger
 
-    for i in ver11_logger.logger.handlers:
-        ver11_logger.removeHandler(i)
+    del logging.Logger.manager.loggerDict['test_ver11']
 
 
 # ---------------------------------------------------------------------------

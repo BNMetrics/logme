@@ -7,7 +7,7 @@ from ..exceptions import LogmeError
 from ..utils import dict_to_config
 from ..__version__ import __version__
 
-from ._cli_utils import ensure_conf_exist, validate_conf, get_tpl
+from ._cli_utils import ensure_conf_exist, validate_conf, get_tpl, get_color_tpl
 from ._upgrade_utils import upgrade_to_latest
 
 _command_options = {
@@ -52,7 +52,7 @@ def add_options(options: list=None):
     return add_options_wrapper
 
 
-@click.version_option(__version__, '--version', '-v')
+@click.version_option(__version__, '--version', '-v', '-V')
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 def cli():
     """
@@ -89,7 +89,10 @@ def init(ctx, project_root, override, mkdir, level, formatter, log_path):
     Command to set up a logme config file with master logger configuration
 
     """
-    conf_content = get_tpl('logme', level=level, formatter=formatter, filename=log_path)
+    conf_content = get_color_tpl()
+    master_logging_config = get_tpl('logme', level=level,
+                                    formatter=formatter, filename=log_path)
+    conf_content.update(master_logging_config)
 
     config = dict_to_config(conf_content)
 
@@ -139,9 +142,14 @@ def remove(ctx, name, project_root):
     Command for removing a logger configuration in a logme.ini file.
     logme configuration cannot be removed
     """
+    none_removables = {
+        'logme': "'logme' master configuration cannot be removed!",
+        'colors': "'colors' configuration cannot be removed! To remove color "
+                  "logging, set all color values to 'None'",
+    }
 
-    if name == 'logme':
-        raise LogmeError("'logme' master logger configuration cannot be removed!")
+    if none_removables.get(name):
+        raise LogmeError(none_removables[name])
 
     with ensure_conf_exist(project_root) as logme_conf:
 

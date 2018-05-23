@@ -38,7 +38,7 @@ def test_module_logger(caplog):
 
     assert type(my_logger.logger) == LogmeLogger
     assert my_logger.name == 'test_module_logger'
-    assert my_logger.master_formatter._fmt == '{asctime} - {name} - {levelname} - {module}::{funcName}::{message}'
+    assert my_logger.master_formatter == '{asctime} - {name} - {levelname} - {module}::{funcName}::{message}'
     assert my_logger.config == get_logger_config(__file__)
 
     my_logger.info('my test module logger content')

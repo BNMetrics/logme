@@ -6,8 +6,9 @@ from click.testing import CliRunner
 from logme import cli
 from logme.exceptions import LogmeError
 from logme.utils import cd
+
 from logme.cli._cli_utils import (ensure_conf_exist, validate_conf, get_tpl,
-                                  map_template, check_options)
+                                  map_template, check_options, get_color_tpl)
 
 
 def test_ensure_conf_exist(tmpdir, capsys):
@@ -47,6 +48,21 @@ def test_validate_conf_none_valid(tmpdir):
 
     with pytest.raises(LogmeError):
         validate_conf('blah', file)
+
+
+def test_get_color_tpl():
+    expected = {
+        'colors': {
+            'CRITICAL': '\ncolor: PURPLE\nstyle: Bold',
+            'ERROR': 'RED',
+            'WARNING': 'YELLOW',
+            'INFO': 'None',
+            'DEBUG': 'GREEN'
+        }
+    }
+    color_tpl = get_color_tpl()
+
+    assert color_tpl == expected
 
 
 def test_get_tpl(tmpdir):

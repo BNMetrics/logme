@@ -26,6 +26,16 @@ def get_logger_config(caller_file_path: Union[str, Path], name: str=None) -> dic
     return get_config_content(caller_file_path, name=name)
 
 
+def get_color_config(caller_file_path: Union[str, Path]):
+    """
+    Return color configuration dict if 'colors' section exists, return None if not found
+    """
+    try:
+        return get_config_content(caller_file_path, 'colors')
+    except InvalidConfig:
+        return
+
+
 def get_config_content(caller_file_path: Union[str, Path], name: str) -> dict:
     """
     Get the config section as a dictionary

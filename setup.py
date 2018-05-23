@@ -1,5 +1,7 @@
-from importlib.machinery import SourceFileLoader
+import sys
 from pathlib import Path
+
+from importlib.machinery import SourceFileLoader
 
 from setuptools import setup, find_packages
 
@@ -11,6 +13,10 @@ version = logme_module.__version__
 requires = [
     'click',
 ]
+
+# Install colorama on windows systems as an optional dependency
+if sys.platform.lower().startswith('win'):
+    requires.append('colorama')
 
 with open('README.rst', 'r', encoding='utf-8') as f:
     readme = f.read()

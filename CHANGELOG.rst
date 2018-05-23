@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-Dev
+1.2.0 (2018-05-23)
 ==================
 
 **Bug Fixes**
@@ -13,16 +13,23 @@ Dev
 
 **Improvement**
 
-- Allowing color output in terminal! <3
+- Allowing color output in the terminal for ``StreamHandlers``!
+- Running ``logme upgrade`` will now automatically apply ``colors`` configuration in your ``logme.ini``
 
 
 **Misc**
 
-- Added ``get_logger_config()`` in ``config.py`` to allow getting only configuration of loggers in ``logme.ini``.
-  This will enable ``get_config_content()`` to get color configurations
 - Improved testing in ``test_log.py``
-- In ``LogmeLogger.reset_config()``, changed removable of previous handler by deleting the handler from ``logging.Logger.manager.loggerDict``
-  instead of removing handlers
+
+- ``config.py``
+    * Added ``get_logger_config()`` to allow getting only configurations of loggers in ``logme.ini``.
+      This enables ``get_config_content()`` to get color configurations
+    * Added ``get_color_config()``to get color configurations
+
+- ``LogmeLogger.reset_config()``
+    * Removing the previous configured logger by deleting the logger from ``logging.Logger.manager.loggerDict``,
+      instead of removing handlers on the existing loggers.
+    * Added ``disabled`` property for disabling logger.
 
 
 

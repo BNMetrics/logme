@@ -3,9 +3,8 @@ import pytest
 import logging
 from pathlib import Path
 
-import logme.providers
 from logme.providers import LogmeLogger
-from logme.config import get_logger_config
+from logme.config import get_logger_config, get_color_config, get_config_content
 from logme.exceptions import DuplicatedHandler, InvalidOption, LogmeError
 
 
@@ -18,18 +17,23 @@ class TestLogmeLogger:
     # ---------------------------------------------------------------------------
     # Test overall functionality
     # ---------------------------------------------------------------------------
+    def test_repr(self, logger_from_provider, capsys):
+        print(logger_from_provider)
+
+        out, err = capsys.readouterr()
+
+        assert out.strip() == '<LogmeLogger name=test_logger>'
+        assert err == ''
 
     def test_logger(self, logger_from_provider):
         assert logger_from_provider.level == 10
 
     def test_logging(self, caplog, logger_from_provider):
-        print(logger_from_provider.logger.handlers)
-
-        logger_from_provider.info('my logging message')
+        logger_from_provider.debug('my logging message')
         captured = caplog.record_tuples[0]
 
         assert captured[0] == 'test_logger'
-        assert captured[1] == 20
+        assert captured[1] == 10
         assert captured[2] == 'my logging message'
 
     def test_non_existent_attr(self, logger_from_provider):
@@ -57,13 +61,47 @@ class TestLogmeLogger:
     def test_filehandler(self, file_config_content):
         logger = LogmeLogger('file_logger', file_config_content)
 
-        logger.info('my log message for file handler')
+        logger.debug('my log message for file handler')
 
         log_path = Path(file_config_content['FileHandler']['filename'])
         assert log_path.exists()
 
         with open(log_path) as file:
             assert file.readline() == 'file_logger::my log message for file handler\n'
+
+    def test_disabled(self, logger_from_provider, caplog):
+        # Check disabled condition before disabling
+        assert logger_from_provider.logger.disabled is False
+        assert logger_from_provider.disabled is False
+        dict_before_disable = logger_from_provider.logger.__dict__.copy()
+
+        # Disable logger
+        logger_from_provider.disabled = True
+        logger_from_provider.info('hello')
+
+        assert len(caplog.record_tuples) == 0
+        assert logger_from_provider.logger.disabled is True
+
+        for k, v in logger_from_provider.logger.__dict__.items():
+            if k != 'disabled':
+                assert dict_before_disable[k] == v
+
+        # re-enable
+        logger_from_provider.disabled = False
+        logger_from_provider.info('re-enabled logging')
+
+        assert len(caplog.record_tuples) == 1
+        assert caplog.record_tuples[0] == ('test_logger', 20, 're-enabled logging')
+        assert dict_before_disable == logger_from_provider.logger.__dict__
+
+    def test_color_none_values(self):
+        color_config = get_config_content(__file__, 'colors_null')
+
+        logger = LogmeLogger(name='null_colors_logger', config=self.config,
+                             color_config=color_config)
+
+        logger.info('info')
+        logger.critical('critical')
 
     # ---------------------------------------------------------------------------
     # Test individual methods
@@ -121,6 +159,11 @@ class TestLogmeLogger:
         assert stream_handler.level == 20
         assert stream_handler.formatter is None
 
+    def test_config_handler_with_both_level_and_master(self, logger_from_provider):
+        stream = logging.StreamHandler()
+
+        logger_from_provider._config_handler(stream, level='info', set_from_master=True)
+
     @pytest.mark.parametrize('level',
                              [
                                  pytest.param('INFO', id='all upper case string'),
@@ -129,6 +172,10 @@ class TestLogmeLogger:
                              ])
     def test_get_level(self, level, logger_from_provider):
         assert logger_from_provider._get_level(level) == 20
+
+    def test_get_level_raise(self, logger_from_provider):
+        with pytest.raises(InvalidOption):
+            logger_from_provider._get_level('blah')
 
     def test_handler_exist_true(self, logger_from_provider):
         stream_handler = logging.StreamHandler()
@@ -262,14 +309,12 @@ class TestLogmeLogger:
 
         assert e_info.value.args[0] == message
 
-    def test_reconfig_handler(self, tmpdir):
-        config = get_logger_config(__file__, 'filehandler_conf')
-        log_file = Path(tmpdir.join('mylog.log'))
+    def test_reconfig_handler(self, file_config_content):
+        log_file = file_config_content['FileHandler']['filename']
+        color_config = get_color_config(__file__)
 
-        config['FileHandler']['filename'] = str(log_file)
-        config['StreamHandler']['active'] = True
-
-        logger = LogmeLogger('reconfig_handler_test', config)
+        logger = LogmeLogger('reconfig_handler_test', file_config_content,
+                             color_config=color_config)
 
         # Check original level
         assert list(logger.handlers.values()) == logger.logger.handlers

@@ -224,14 +224,14 @@ Instead of configuring ``master_level`` and ``master_formatter``, you can also c
 
 
 Using Logme in Installable Package
------------------
+----------------------------------
 _____________________________________________________________________
 
 When you make an ``pip`` installable package, you will need to ensure that ``logme.ini`` is installed alongside your package code
 to python's ``site-packages/`` directory.
 
-There are two options to make this happen, and for both of them you will need to include ``logme.ini`` in your **package root**(*where your source code is*) directory
-instead of project root(*the same directory as your*``setup.py``).
+There are two options to make this happen, and for both of them you will need to include ``logme.ini`` in your **package root** (*where your source code is*) directory
+instead of project root(*the same directory as your* ``setup.py``).
 
 It would look like this::
 
@@ -244,7 +244,7 @@ It would look like this::
 
 
 I. Using package_data in setuptool
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is the simplest way to include non-python files in your package, you only need to include  ``package_data`` argument in your ``setup.py``, like so:
 

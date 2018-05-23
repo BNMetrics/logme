@@ -38,7 +38,7 @@ Then upgrade the ``logme.ini``, run the following command in your project direct
     $ logme upgrade
 
 
-.. note:: v1.1.0+ is backwards compatible, so if you still have the previous version of ``logme.ini``, you will not be affected.
+**Note:** v1.1.0+ is backwards compatible, so if you still have the previous version of ``logme.ini``, you will not be affected.
 
 
 In A Nutshell

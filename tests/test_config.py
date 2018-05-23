@@ -2,7 +2,9 @@ import pytest
 
 from pathlib import Path
 
-from logme.config import get_logger_config, read_config, get_ini_file_path, get_config_content
+from logme.config import (get_logger_config, read_config, get_ini_file_path,
+                          get_config_content, get_color_config)
+from logme.utils import dict_to_config, flatten_config_dict, cd
 from logme.exceptions import InvalidConfig
 
 
@@ -23,8 +25,51 @@ def test_get_logger_config(conf_name, expected_master_level):
                              pytest.param('bunny', id='none existent config section')
                          ])
 def test_get_logger_config_raise(conf_name):
-    with pytest.raises(InvalidConfig) as e_info:
+    with pytest.raises(InvalidConfig):
         get_logger_config(__file__, conf_name)
+
+
+def test_get_color_config():
+    expected = {
+        'CRITICAL': {'bg': 'red', 'color': 'white', 'style': 'Bold'},
+        'ERROR': 'PURPLE',
+        'WARNING': 'YELLOW',
+        'INFO': 'GREEN',
+        'DEBUG': 'WHITE'
+    }
+    color_conf = get_color_config(__file__)
+    assert expected == color_conf
+
+
+def test_color_config_with_none_value():
+    """ Test for correct output when a value is None"""
+    expected = {
+        'CRITICAL': {'color': 'PURPLE', 'style': 'Bold'},
+        'ERROR': 'RED',
+        'WARNING': 'YELLOW',
+        'INFO': None,
+        'DEBUG': 'GREEN',
+    }
+    color_config = get_config_content(__file__, 'colors_test2')
+
+    assert color_config == expected
+
+
+def test_color_config_none_exist(tmpdir):
+    """
+    Ensure color config returns None if none existent
+    """
+    logme_file = tmpdir.join('logme.ini')
+
+    config_dict = {'logme': flatten_config_dict(get_logger_config(__file__))}
+    config = dict_to_config(config_dict)
+
+    with open(logme_file, 'w') as file:
+        config.write(file)
+
+    color_config = get_color_config(logme_file)
+
+    assert color_config is None
 
 
 def test_get_config_content():
@@ -61,10 +106,6 @@ def test_get_config_content_ver11():
     assert conf_content == expected
 
 
-def test_get_config_content_color():
-    colors = get_config_content(__file__, 'colors')
-    print(colors)
-
 def test_get_config_content_raise():
     with pytest.raises(InvalidConfig):
         get_config_content(__file__, 'blah')
@@ -75,7 +116,7 @@ def test_read_config(tmpdir_class_scope):
 
     config = read_config(Path(project_dir) / 'logme.ini')
 
-    assert config.sections() == ['logme']
+    assert config.sections() == ['colors', 'logme']
 
 
 def test_read_config_empty(tmpdir):
