@@ -21,7 +21,6 @@ logging in Python not so straight forward, download this package and give it a t
 
 v1.2.0 Updates
 --------------
-_____________________________________________________________________
 
 **logme** package now supports color and styling output in the terminal!
 
@@ -30,9 +29,9 @@ The colors and style is **customizable** in ``logme.ini``, here is a screenshot 
 
 .. image:: http://logme.readthedocs.io/en/latest/_images/demo_color.png
 
-To use color output in logme, make sure your logme package and ``logme.ini`` is `up-to-date <http://logme.readthedocs.io/en/latest/?badge=latest#upgrading>`.
+To use color output in logme, make sure your logme package and ``logme.ini`` is `up-to-date <http://logme.readthedocs.io/en/latest/?badge=latest#upgrading>`_.
 
-Check the configuration details `here <http://logme.readthedocs.io/en/latest/guide/quickstart.html#colors>`.
+Check the configuration details `here <http://logme.readthedocs.io/en/latest/guide/quickstart.html#colors>`_.
 
 
 
