@@ -5,10 +5,10 @@ from importlib.machinery import SourceFileLoader
 
 from setuptools import setup, find_packages
 
-version_module_path = Path(__file__).parent / Path('logme/__version__.py')
-version_module_obj = SourceFileLoader('logme', str(version_module_path)).load_module()
+ver_module_path = Path(__file__).parent / Path('logme/__version__.py')
+ver_module_obj = SourceFileLoader('logme', str(ver_module_path)).load_module()
 
-version = version_module_obj.__version__
+version = ver_module_obj.__version__
 
 requires = [
     'click',
