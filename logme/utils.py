@@ -81,9 +81,7 @@ def dict_to_config(conf_content: dict) -> ConfigParser:
     config = ConfigParser()
     # preserve casing
     config.optionxform = str
-
-    for k, v in conf_content.items():
-        config[k] = v
+    config.read_dict(conf_content)
 
     return config
 
