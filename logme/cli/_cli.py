@@ -123,12 +123,12 @@ def add(ctx, project_root, name, level, formatter, log_path):
     """
     with ensure_conf_exist(project_root) as logme_conf:
 
+        # check if section already exist
         validate_conf(name, logme_conf)
 
         conf_content = get_tpl(name, level=level, formatter=formatter, filename=log_path)
         config = dict_to_config(conf_content)
 
-        # check if section already exist
         with logme_conf.open('a') as conf:
             config.write(conf)
 

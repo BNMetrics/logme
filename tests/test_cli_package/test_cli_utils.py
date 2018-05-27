@@ -31,23 +31,29 @@ def test_ensure_conf_exist_raise(tmpdir):
 
 
 def test_validate_conf_section_exist(tmpdir):
+    """ Test raise when section already exists"""
     with cd(tmpdir):
         runner = CliRunner()
 
         runner.invoke(cli, ['init'])
         runner.invoke(cli, ['add', 'blah'])
 
-        with pytest.raises(LogmeError):
+        with pytest.raises(LogmeError) as e_info:
             validate_conf('blah', Path(tmpdir / 'logme.ini'))
+
+        assert "'blah' logging config already exists in config file" in e_info.value.args[0]
 
 
 def test_validate_conf_none_valid(tmpdir):
+    """ Test exception raises when [logme] section does not exist"""
     file = tmpdir.join('logme.ini')
     with file.open('w') as file_object:
         file_object.write('[foo]\nblah = 1')
 
-    with pytest.raises(LogmeError):
+    with pytest.raises(LogmeError) as e_info:
         validate_conf('blah', file)
+
+    assert "is not a valid logme.ini file" in e_info.value.args[0]
 
 
 def test_get_color_tpl():

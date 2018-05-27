@@ -2,6 +2,17 @@
 CHANGELOG
 =========
 
+dev
+==================
+
+**Misc**
+
+- changed utils.py::dict_to_conf() to use ConfigParser.read_dict()
+- Changed _cli_utils.py::validate_conf() to use ConfigParser.has_section()
+
+
+
+
 1.2.0 (2018-05-23)
 ==================
 

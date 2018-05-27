@@ -34,14 +34,14 @@ def validate_conf(name: str, ini_file_path: Union[str, Path]):
     Helper function for 'logme init' command,
     ensure the logger name passed in does not already exist in the ini file
 
-    :param name:
-    :param ini_file_path:
+    :param name: name of the section to be added
+    :param ini_file_path: path of the logme.ini file
     """
-    sections = read_config(ini_file_path).sections()
+    config = read_config(ini_file_path)
 
-    if name in sections:
+    if config.has_section(name):
         raise LogmeError(f"'{name}' logging config already exists in config file: {ini_file_path}")
-    elif 'logme' not in sections:
+    elif not config.has_section('logme'):
         raise LogmeError(f"{ini_file_path} is not a valid logme.ini file")
 
 
