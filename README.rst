@@ -12,7 +12,7 @@ Logme - Python Logging Made Easy
   :target: https://codecov.io/gh/BNMetrics/logme
 
 .. image:: https://readthedocs.org/projects/logme/badge/?version=latest
-    :target: http://logme.readthedocs.io/en/latest/?badge=latest
+    :target: https://logme.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
 Logme is a Python package that makes logging simple and robost. If you have found
@@ -29,9 +29,9 @@ The colors and style is **customizable** in ``logme.ini``, here is a screenshot 
 
 .. image:: http://logme.readthedocs.io/en/latest/_images/demo_color.png
 
-To use color output in logme, make sure your logme package and ``logme.ini`` is `up-to-date <http://logme.readthedocs.io/en/latest/?badge=latest#upgrading>`_.
+To use color output in logme, make sure your logme package and ``logme.ini`` is `up-to-date <https://logme.readthedocs.io/en/latest/?badge=latest#upgrading>`_.
 
-Check the configuration details `here <http://logme.readthedocs.io/en/latest/guide/quickstart.html#colors>`_.
+Check the configuration details `here <https://logme.readthedocs.io/en/latest/guide/quickstart.html#colors>`_.
 
 
 
@@ -70,6 +70,6 @@ pretty nice right? :)
 Documentation
 -------------
 
-You can find the documentation at http://logme.readthedocs.io/en/latest/ .
+You can find the documentation at https://logme.readthedocs.io/en/latest/ .
 Give it a try!
 
