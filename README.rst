@@ -67,7 +67,7 @@ You can do the same with classes too:
 
 pretty nice right? :)
 
-To get started, head to `the quickstart page<https://logme.readthedocs.io/en/latest/guide/quickstart.html>`_.
+To get started, head to the `quickstart <https://logme.readthedocs.io/en/latest/guide/quickstart.html>`_  page.
 
 Documentation
 -------------
