@@ -8,8 +8,7 @@ import logging
 from logging import handlers as logging_handlers
 
 from .color_provider import ColorFormatter
-from .config import get_logger_config, get_color_config
-from .utils import ensure_dir
+from .utils import ensure_dir, get_logger_config, get_color_config
 from .exceptions import InvalidOption, DuplicatedHandler, LogmeError
 
 

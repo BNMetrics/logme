@@ -7,10 +7,10 @@ class MisMatchScope(Exception):
 
 
 class InvalidOption(Exception):
-    """Used when the option in config file is invalid"""
+    """Used when the an option is invalid"""
 
 
-class InvalidConfig(Exception):
+class InvalidLoggerConfig(Exception):
     """Used when invalid configuration is passed"""
 
 

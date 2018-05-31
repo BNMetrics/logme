@@ -2,13 +2,19 @@
 CHANGELOG
 =========
 
-dev
-==================
+1.2.1 (2018-06-1)
+=================
+
+**Bug Fixes**
+
+- Error handling for color_provider.py was outputting invalid error message when invalid style was passed in.
+
 
 **Misc**
 
-- changed utils.py::dict_to_conf() to use ConfigParser.read_dict()
-- Changed _cli_utils.py::validate_conf() to use ConfigParser.has_section()
+- Removed config.py, and moved everything configuration file related to `bnmutils <https://github.com/BNMetrics/bnmetrics-utils>`_ repository.
+  Moved everything logme configuration related to utils.py
+- Changed exception.py::InvalidConfig to InvalidLoggerConfig
 
 
 

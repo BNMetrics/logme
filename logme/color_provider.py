@@ -63,7 +63,7 @@ class Color:
             if e.args[0] == 'reset':
                 self.text_style = {}
             else:
-                if color:
+                if not self.color_map.get(color):
                     message = f"{e} is not a valid color"
                 else:
                     message = f"{e} is not a valid style or background color"

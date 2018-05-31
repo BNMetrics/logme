@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 
 from logme.providers import LogmeLogger
-from logme.config import get_logger_config, get_color_config, get_config_content
+from logme.utils import get_logger_config, get_color_config, get_config_content
 from logme.exceptions import DuplicatedHandler, InvalidOption, LogmeError
 
 

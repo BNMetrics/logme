@@ -1,120 +1,11 @@
-import os
-import ast
-from typing import List, Union
+from typing import Union
 
 from pathlib import Path
-from contextlib import contextmanager
-from configparser import ConfigParser
 
-from .exceptions import InvalidOption, LogmeError
+from bnmutils import ConfigParser
+from configparser import NoSectionError
 
-
-def conf_to_dict(conf_section: List[tuple]) -> dict:
-    """
-    Converting the Configparser *section* to a dictionary format
-
-    :param conf_section: values from config.items('section') or dict(config['section'])
-    """
-
-    return {i[0]: conf_item_to_dict(i[1]) if '\n' in i[1] else str_eval(i[1])
-            for i in conf_section}
-
-
-def conf_item_to_dict(parse_option: str) -> dict:
-    """
-    Map the configuration item(such as 'FileHandler' section) to dict.
-    * Do not pass in the whole config section!*
-
-    :param: parse_option: values from config.get('section', 'option')
-    """
-    try:
-        str_split = parse_option.strip().split('\n')
-        mapped_list = list(map(lambda x: x.split(': ', 1), str_split))
-
-        strip_blank_recursive(mapped_list)
-
-        return dict(mapped_list)
-    except AttributeError:
-        raise InvalidOption(f"option passed must be a string value, not type of '{type(parse_option).__name__}'.")
-    except ValueError:
-        raise InvalidOption(f"{parse_option} is not a valid option, please follow the convention of 'key: value'")
-
-
-def flatten_config_dict(parse_dict: dict) -> dict:
-    """
-    flatten nested dict for logme configuration file
-    """
-    flattened = {}
-
-    for k, v in parse_dict.items():
-
-        if isinstance(v, (str, bool)) or v is None:
-            str_val = str(v)
-        elif isinstance(v, dict):
-            val_list = [f'{k1}: {v1}' for k1, v1 in v.items()]
-
-            str_val = '\n' + '\n'.join(val_list)
-        else:
-            raise ValueError(f"all values in the dict must be dict or string value, "
-                             f"'{type(v).__name__}' is not allowed!")
-
-        flattened[k] = str_val
-
-    return flattened
-
-
-def dict_to_config(conf_content: dict) -> ConfigParser:
-    """
-    Convert a dict to ConfigParser Object
-
-    * options must be flattened as string*
-
-    :param conf_content: nested dict
-                         e.g {'section_name': {
-                                                'option1': 'val1',
-                                                'option2': 'val2',
-                                              }
-                              }
-
-    :return: configpaser.Configparser
-    """
-    config = ConfigParser()
-    # preserve casing
-    config.optionxform = str
-    config.read_dict(conf_content)
-
-    return config
-
-
-def strip_blank_recursive(nested_list: list):
-    """
-    Strip blank space or newline characters recursively for a nested list
-
-    *This updates the original list passed in*
-
-    """
-    if not isinstance(nested_list, list):
-        raise ValueError(f"iterable passed must be type of list. not '{type(nested_list).__name__}'")
-
-    for i, v in enumerate(nested_list):
-        if isinstance(v, list):
-            strip_blank_recursive(v)
-        elif isinstance(v, str):
-            val_ = str_eval(v)
-
-            nested_list[i] = val_
-
-
-def str_eval(parse_str: str):
-    """
-    Evaluate string, return the respective object if evaluation is successful,
-    """
-    try:
-        val = ast.literal_eval(parse_str.strip())
-    except (ValueError, SyntaxError):  # SyntaxError raised when passing in "{asctime}::{message}"
-        val = parse_str.strip()
-
-    return val
+from .exceptions import InvalidOption, LogmeError, InvalidLoggerConfig
 
 
 def ensure_dir(dir_path: Union[Path, str], path_type: str='parent'):
@@ -153,14 +44,76 @@ def check_scope(scope: str, options: list) -> bool:
     return True
 
 
-@contextmanager
-def cd(dir_path: str):
+# ---------------------------------------------------------------------------
+# Utilities for getting configuration content
+# ---------------------------------------------------------------------------
+def get_logger_config(caller_file_path: Union[str, Path], name: str=None) -> dict:
     """
-    Context manager for cd, change back to original directory when done
+    Get logger config as dictionary
+
+    :param caller_file_path: file path of the caller, __file__
+    :param name: the name(section in logme.ini) of the config to be passed. (optional, default: 'logme')
+
+    :return: logger configuration dictionary
+    :raises: InvalidConfig, if name is not in config, or name == 'colors'
     """
-    cwd = os.getcwd()
+    if name == 'colors':
+        raise InvalidLoggerConfig(f"'colors' cannot be used as a logger configuration")
+
+    if not name:
+        name = 'logme'
+
     try:
-        os.chdir(os.path.expanduser(dir_path))
-        yield
-    finally:
-        os.chdir(cwd)
+        return get_config_content(caller_file_path, name=name)
+    except NoSectionError:
+        raise InvalidLoggerConfig(f"Invalid logger config '{name}'")
+
+
+def get_color_config(caller_file_path: Union[str, Path]):
+    """
+    Return color configuration dict if 'colors' section exists, return None if not found
+    """
+    try:
+        return get_config_content(caller_file_path, 'colors')
+    except NoSectionError:
+        return
+
+
+def get_config_content(caller_file_path: Union[str, Path], name: str) -> dict:
+    """
+    Get the config section as a dictionary
+
+    :param caller_file_path: file path of the caller, __file__
+    :param name: the section name in an .ini file
+
+    :return: configuration as dict
+    """
+
+    init_file_path = get_ini_file_path(caller_file_path)
+
+    config = ConfigParser.from_files(init_file_path)
+
+    try:
+        return config.to_dict(section=name)
+    except NoSectionError:
+        raise NoSectionError(f"'{name}' is not a valid configuration in {init_file_path}")
+
+
+def get_ini_file_path(caller_file_path: Union[str, Path]) -> Path:
+    """
+    Get the logme.ini config file path
+
+    :param caller_file_path: file path of the caller, callable.__file__
+
+    :return: Path object of the logme.ini
+    """
+    conf_path = Path(caller_file_path).parent / 'logme.ini'
+
+    if caller_file_path in [Path(Path(caller_file_path).root).resolve(),
+                            Path(caller_file_path).home().resolve()]:
+        raise ValueError(f"logme.ini does not exist, please use 'logme init' command in your project root.")
+
+    if not conf_path.exists():
+        return get_ini_file_path(Path(caller_file_path).parent)
+    else:
+        return conf_path.resolve()

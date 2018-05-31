@@ -4,7 +4,7 @@ import logging
 from click.testing import CliRunner
 
 from logme.cli import cli
-from logme.config import get_logger_config, get_color_config
+from logme.utils import get_logger_config, get_color_config
 from logme.providers import LogmeLogger
 
 

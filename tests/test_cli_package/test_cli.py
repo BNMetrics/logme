@@ -1,13 +1,14 @@
 import pytest
-from configparser import ConfigParser
 
 import shutil
 from pathlib import Path
 from click.testing import CliRunner
 
+from bnmutils import ConfigParser
+from bnmutils.novelty import cd
+
 from logme.exceptions import LogmeError
-from logme.utils import cd, conf_item_to_dict
-from logme.config import read_config, get_logger_config
+from logme.utils import get_logger_config
 from logme import __version__
 
 from logme import cli
@@ -41,8 +42,7 @@ class TestCli:
             assert result.exit_code == 0
             assert expected_file.is_file()
 
-            conf = ConfigParser()
-            conf.read(expected_file)
+            conf = ConfigParser.from_files(expected_file)
             assert conf.sections() == ['colors', 'logme']
 
             # Assert the first section is the color config
@@ -75,7 +75,7 @@ class TestCli:
 
         self.runner.invoke(cli, ['init', '-p', tmpdir] + option)
 
-        conf = read_config(tmpdir.join('logme.ini'))
+        conf = ConfigParser.from_files(tmpdir.join('logme.ini'))
 
         assert conf.get(*key) == expected
 
@@ -86,12 +86,12 @@ class TestCli:
         self.runner.invoke(cli, ['init', '-p', tmp,
                                  '-mk', '-lp', tmp.join('var/log/dummy.log')])
 
-        conf = read_config(tmp.join('logme.ini'))
+        config = ConfigParser.from_files(tmp.join('logme.ini'))
 
-        fh_conf = conf.get('logme', 'file')
+        fh_conf = config.to_dict(section='logme', option='file')
 
-        assert conf_item_to_dict(fh_conf)['filename'] == tmp.join('var/log/dummy.log')
-        assert set(conf_item_to_dict(fh_conf).keys()) == {'active', 'level', 'filename', 'type'}
+        assert fh_conf['filename'] == tmp.join('var/log/dummy.log')
+        assert set(fh_conf.keys()) == {'active', 'level', 'filename', 'type'}
 
     def test_init_raise_invalid_dir(self, tmpdir):
 
@@ -142,7 +142,7 @@ class TestCli:
             result = self.runner.invoke(cli, ['add', 'blah'])
 
             config_path = tmpdir.join('logme.ini')
-            config = read_config(config_path)
+            config = ConfigParser.from_files(config_path)
 
             assert result.exit_code == 0
             assert Path(config_path).is_file()
@@ -167,12 +167,12 @@ class TestCli:
             self.runner.invoke(cli, ['add', 'test'])
 
             config_path = tmpdir.join('logme.ini')
-            config_before = read_config(config_path)
+            config_before = ConfigParser.from_files(config_path)
 
             assert set(config_before.sections()) == {'colors', 'logme', 'test'}
 
             result = self.runner.invoke(cli, ['remove', 'test'])
-            config_after = read_config(config_path)
+            config_after = ConfigParser.from_files(config_path)
 
             assert result.exit_code == 0
             assert config_after.sections() == ['colors', 'logme']

@@ -2,197 +2,152 @@ import pytest
 
 from pathlib import Path
 
-from configparser import ConfigParser
+from bnmutils import ConfigParser
+from configparser import NoSectionError
 
-from logme.exceptions import InvalidOption
-from logme.utils import (flatten_config_dict, conf_to_dict, dict_to_config, str_eval,
-                         ensure_dir, check_scope, conf_item_to_dict, strip_blank_recursive, cd)
+from logme.exceptions import InvalidOption, InvalidLoggerConfig
+from logme.utils import (get_logger_config, get_ini_file_path, get_config_content,
+                         get_color_config, ensure_dir, check_scope)
 
 
-class TestPackageUtils:
+@pytest.mark.parametrize('subpath, path_type, expected_path',
+                         [pytest.param('test/my_test_dir', 'current', 'test/my_test_dir',
+                                       id='make sure the exact dir exists'),
+                          pytest.param('foo/my_dir/myfile.txt', 'parent', 'foo/my_dir',
+                                       id='make sure the parent dir exists')])
+def test_ensure_dir(tmpdir, subpath, path_type, expected_path):
+    dir_path = Path(tmpdir) / Path(subpath)
 
-    @classmethod
-    def setup(cls):
+    ensure_dir(dir_path, path_type=path_type)
 
-        cls.sample_dict = {
-            "level": "DEBUG",
-            "format": "%(levelname)s: %(message)s",
-            "StreamHandler": {
-                "active": True,
-                "level": "DEBUG",
-            },
-            "FileHandler": {
-                "level": "DEBUG",
-                "filename": "/var/log/mylog.log",
-            },
-        }
+    assert (Path(tmpdir) / Path(expected_path)).exists()
 
-        cls.sample_conf_dict = {
-            "level": "DEBUG",
-            "format": "%(levelname)s: %(message)s",
-            "StreamHandler": "\nactive: True\nlevel: DEBUG",
-            "FileHandler": f"\nlevel: DEBUG"
-                           f"\nfilename: /var/log/mylog.log",
-        }
 
-        cls.conf_section = [(k, v) for k, v in cls.sample_conf_dict.items()]
+def test_ensure_dir_raise(tmpdir):
+    with pytest.raises(InvalidOption):
+        ensure_dir(tmpdir, path_type='cwd')
 
-    def test_conf_section_to_dict(self):
-        output = conf_to_dict(self.conf_section)
 
-        assert output == self.sample_dict
+@pytest.mark.parametrize('scope, options', [pytest.param('function', ['function', 'class']),
+                                            pytest.param('class', ['function', 'class', 'module', 'blah'])])
+def test_check_scope_function(scope, options):
+    assert check_scope(scope, options) is True
 
-    @pytest.mark.parametrize('parse_option',
-                             [pytest.param(" \ntype: option \n second_val : my_val ",
-                                           id='config options with blank space in the beginning and middle'),
-                              pytest.param("\n  type  : option    \n  second_val : my_val \n",
-                                           id='config option with blank space after new line, '
-                                              'and new line after last option'),
-                              pytest.param("\ntype: option \nsecond_val: my_val ",
-                                           id='config option with no blank space')])
-    def test_conf_item_to_dict(self, parse_option):
-        expected_dict = {'type': 'option',
-                         'second_val': 'my_val'}
-        output = conf_item_to_dict(parse_option)
 
-        assert expected_dict == output
+@pytest.mark.parametrize('conf_name, expected_master_level',
+                         [
+                             pytest.param(None, 'DEBUG', id='when no conf_name is being passed'),
+                             pytest.param('my_test_logger', 'INFO', id='when conf_name is being passed')
+                         ])
+def test_get_logger_config(conf_name, expected_master_level):
+    logger_config = get_logger_config(__file__, conf_name)
 
-    def test_conf_item_to_dict_multiple_colons(self):
-        parse_item = '\nactive: True' \
-                     '\nlevel: INFO' \
-                     '\nformatter: {funcName} :: {levelname} :: {message}'
+    assert logger_config['level'] == expected_master_level
 
-        expected = {
-            'active': True,
-            'level': 'INFO',
-            'formatter': '{funcName} :: {levelname} :: {message}',
-        }
 
-        assert conf_item_to_dict(parse_item) == expected
+@pytest.mark.parametrize('conf_name',
+                         [
+                             pytest.param('colors', id='colors passed as configuration'),
+                             pytest.param('bunny', id='none existent config section')
+                         ])
+def test_get_logger_config_raise(conf_name):
+    with pytest.raises(InvalidLoggerConfig):
+        get_logger_config(__file__, conf_name)
 
-    @pytest.mark.parametrize('parse_option',
-                             [pytest.param(['blah', 'test'], id='when option passed is a list'),
-                              pytest.param(20, id='when option passed is an int'),
-                              pytest.param({'blah': 'test'}, id='when option passed is a dict'),
-                              pytest.param("\nhello\nbye", id='when option passed is in invalid format'),
-                              pytest.param("\nhello: hi\nbye", id='when option passed is in invalid format'),
-                              ])
-    def test_conf_item_to_dict_raise(self, parse_option):
-        with pytest.raises(InvalidOption):
-            conf_item_to_dict(parse_option)
 
-    def test_flatten_config_dict(self):
-        flattened = flatten_config_dict(self.sample_dict)
+def test_get_color_config():
+    expected = {
+        'CRITICAL': {'bg': 'red', 'color': 'white', 'style': 'Bold'},
+        'ERROR': 'PURPLE',
+        'WARNING': 'YELLOW',
+        'INFO': 'GREEN',
+        'DEBUG': 'WHITE'
+    }
+    color_conf = get_color_config(__file__)
+    assert expected == color_conf
 
-        assert flattened == self.sample_conf_dict
 
-    @pytest.mark.parametrize('parse_dict',
-                             [pytest.param({'test': 'test1', 'int_val': 1},
-                                           id='when one of the dict value is integer'),
-                              pytest.param({'test': 'test1', 'list_val': [1, 2, 3, 4, 5]},
-                                           id='when one of the dict value is list')
-                              ])
-    def test_flatten_config_dict_raise(self, parse_dict):
-        with pytest.raises(ValueError):
-            flatten_config_dict(parse_dict)
+def test_color_config_with_none_value():
+    """ Test for correct output when a value is None"""
+    expected = {
+        'CRITICAL': {'color': 'PURPLE', 'style': 'Bold'},
+        'ERROR': 'RED',
+        'WARNING': 'YELLOW',
+        'INFO': None,
+        'DEBUG': 'GREEN',
+    }
+    color_config = get_config_content(__file__, 'colors_test2')
 
-    def test_dict_to_config(self):
+    assert color_config == expected
 
-        conf_content = {'test': {'hello': 1}}
-        config = dict_to_config(conf_content)
 
-        assert type(config) == ConfigParser
-        assert config.sections() == ['test']
+def test_color_config_none_exist(tmpdir):
+    """
+    Ensure color config returns None if none existent
+    """
+    logme_file = tmpdir.join('logme.ini')
 
-    def test_dict_to_config_option_not_str(self):
-        content = {
-            'test': {
-                'level': 'DEBUG',
-                'formatter': None,
+    logger_conifg = get_logger_config(__file__)
+    config_dict = {'logme': logger_conifg}
+
+    config = ConfigParser.from_dict(config_dict)
+
+    with open(logme_file, 'w') as file:
+        config.write(file)
+
+    color_config = get_color_config(logme_file)
+
+    assert color_config is None
+
+
+def test_get_config_content():
+    conf_content = get_config_content(__file__, 'my_test_logger')
+
+    assert type(conf_content) == dict
+    assert type(conf_content['FileHandler']) == dict
+    assert conf_content['level'] == 'INFO'
+
+
+def test_get_config_content_ver11():
+    """
+    Added for v1.1.0, ensure get_config_content() works with both v1.1.* and v1.0.*
+    """
+    expected = {'level': 'DEBUG',
+                'formatter': '{asctime} - {name} - {levelname} - {message}',
                 'stream': {
                     'type': 'StreamHandler',
                     'active': True,
-                    'level': 'DEBUG',
-                },
+                    'level': 'INFO'},
                 'file': {
                     'type': 'FileHandler',
                     'active': False,
                     'level': 'DEBUG',
-                    'filename': 'mylogpath/foo.log',
-                },
-                'null': {
-                    'type': 'NullHandler',
-                    'active': False,
-                    'level': 'NOTSET'
-                },
-            }
-        }
-        with pytest.raises(TypeError):
-            dict_to_config(content)
+                    'filename': 'mylogpath/foo.log'},
+                'null':
+                    {
+                        'type': 'NullHandler',
+                        'active': False,
+                        'level': 'DEBUG'}
+                }
+    conf_content = get_config_content(__file__, 'ver11_config')
 
-    @pytest.mark.parametrize('iterable_, expected',
-                             [pytest.param(['hello ', '\nhi ', 1], ['hello', 'hi', 1],
-                                           id='when the iterable passed is not nested'),
-                              pytest.param([[' hello ', 'hi \n'], [1, ' blah ', ' bye']],
-                                           [['hello', 'hi'], [1, 'blah', 'bye']],
-                                           id='when the iterable passed has nested list'),
-                              pytest.param([[' hello ', 'hi \n'], [1, ' blah ', ' bye'], 'greet '],
-                                           [['hello', 'hi'], [1, 'blah', 'bye'], 'greet'],
-                                           id='when a tuple is passed and it has nested list and tuple'),
-                              ])
-    def test_strip_blank_recursive(self, iterable_, expected):
-        strip_blank_recursive(iterable_)
+    assert conf_content == expected
 
-        assert iterable_ == expected
 
-    @pytest.mark.parametrize('parse_arg', [pytest.param(1, id='int value passed'),
-                                           pytest.param('hello foo bar', id='string value passed'),
-                                           pytest.param(('hello', 'hi'), id='tuple value passed')
-                                           ])
-    def test_strip_blank_recursive_raise(self, parse_arg):
-        with pytest.raises(ValueError):
-            strip_blank_recursive(parse_arg)
+def test_get_config_content_raise():
+    with pytest.raises(NoSectionError):
+        get_config_content(__file__, 'blah')
 
-    @pytest.mark.parametrize('parse_str, expected',
-                             [
-                                 pytest.param('None', None, id='Passing a None value'),
-                                 pytest.param('False', False, id='Passing a boolean value'),
-                                 pytest.param('Hello world', 'Hello world', id='Passing a regular string'),
-                                 pytest.param('[1, 2, 3]', [1,2,3], id='Passing a list value'),
-                             ])
-    def test_str_eval(self, parse_str, expected):
-        result = str_eval(parse_str)
 
-        assert result == expected
+def test_get_ini_file_path():
+    conf_path = get_ini_file_path(__file__)
 
-    @pytest.mark.parametrize('subpath, path_type, expected_path',
-                             [pytest.param('test/my_test_dir', 'current', 'test/my_test_dir',
-                                           id='make sure the exact dir exists'),
-                              pytest.param('foo/my_dir/myfile.txt', 'parent', 'foo/my_dir',
-                                           id='make sure the parent dir exists')])
-    def test_ensure_dir(self, tmpdir, subpath, path_type, expected_path):
-        dir_path = Path(tmpdir) / Path(subpath)
+    assert conf_path == Path(__file__).parent / 'logme.ini'
 
-        ensure_dir(dir_path, path_type=path_type)
 
-        assert (Path(tmpdir) / Path(expected_path)).exists()
+def test_get_ini_file_path_raise(tmpdir, monkeypatch):
+    monkeypatch.setattr('pathlib.Path.root', tmpdir)
 
-    def test_ensure_dir_raise(self, tmpdir):
-        with pytest.raises(InvalidOption):
-            ensure_dir(tmpdir, path_type='cwd')
-
-    @pytest.mark.parametrize('scope, options', [pytest.param('function', ['function', 'class']),
-                                                pytest.param('class', ['function', 'class', 'module', 'blah'])])
-    def test_check_scope_function(self, scope, options):
-        assert check_scope(scope, options) is True
-
-    def test_cd(self, tmpdir):
-
-        original_cwd = Path.cwd()
-
-        with cd(tmpdir):
-            assert Path.cwd() == tmpdir
-            assert Path.cwd() != original_cwd
-
-        assert original_cwd == Path.cwd()
-
+    target_dir = tmpdir.mkdir('test').mkdir('test_again')
+    with pytest.raises(ValueError):
+        get_ini_file_path(target_dir)

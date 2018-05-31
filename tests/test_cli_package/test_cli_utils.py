@@ -3,9 +3,10 @@ import pytest
 from pathlib import Path
 from click.testing import CliRunner
 
+from bnmutils.novelty import cd
+
 from logme import cli
 from logme.exceptions import LogmeError
-from logme.utils import cd
 
 from logme.cli._cli_utils import (ensure_conf_exist, validate_conf, get_tpl,
                                   map_template, check_options, get_color_tpl)
@@ -59,7 +60,7 @@ def test_validate_conf_none_valid(tmpdir):
 def test_get_color_tpl():
     expected = {
         'colors': {
-            'CRITICAL': '\ncolor: PURPLE\nstyle: BOLD',
+            'CRITICAL': {'color': 'PURPLE', 'style': 'BOLD'},
             'ERROR': 'RED',
             'WARNING': 'YELLOW',
             'INFO': 'None',
@@ -80,7 +81,7 @@ def test_get_tpl(tmpdir):
     assert set(template['test_log'].keys()) == {'level', 'formatter', 'stream',
                                                 'file', 'null'}
     assert template['test_log']['level'] == 'INFO'
-    assert str(log_path) in template['test_log']['file']
+    assert template['test_log']['file']['filename'] == log_path
 
     assert Path(log_path).parent.exists()
 

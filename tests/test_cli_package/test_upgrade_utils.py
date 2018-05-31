@@ -3,9 +3,9 @@ import pytest
 import shutil
 from pathlib import Path
 
+from bnmutils import ConfigParser
+
 from logme.cli._upgrade_utils import _upgrade_logging_config_section, upgrade_to_latest
-from logme.config import read_config
-from logme.utils import conf_to_dict
 
 from logme.cli._upgrade_utils import NONLOGGER_CONFIGS
 from .config_template import ver10_config, ver11_config
@@ -23,21 +23,21 @@ def test_upgrade_to_latest(tmpdir):
     upgrade_to_latest(tmp_logme)
 
     # Validate upgraded file
-    config = read_config(tmp_logme)
-    config_before = read_config(logme_file)
+    config = ConfigParser.from_files(tmp_logme)
+    config_before = ConfigParser.from_files(logme_file)
 
     assert set(config.sections()) == set(NONLOGGER_CONFIGS + config_before.sections())
 
     # Validate the latest version has not been changed
-    assert conf_to_dict(config.items('latest')) == \
-           conf_to_dict(config_before.items('latest')) == \
+    assert config.to_dict(section='latest') == \
+           config_before.to_dict(section='latest') == \
            ver11_config
 
     for i in config.sections():
         if i == 'colors':
             continue
 
-        conf_dict = conf_to_dict(config.items(i))
+        conf_dict = config.to_dict(section=i)
 
         for k, v in conf_dict.items():
             if isinstance(v, dict):
@@ -54,8 +54,8 @@ def test_upgrade_colors_config_not_changed(tmpdir):
 
     upgrade_to_latest(tmp_logme)
 
-    config_before = read_config(local_logme_file)
-    config_after = read_config(tmp_logme)
+    config_before = ConfigParser.from_files(local_logme_file)
+    config_after = ConfigParser.from_files(tmp_logme)
 
     assert config_before.items('colors') == config_after.items('colors')
 

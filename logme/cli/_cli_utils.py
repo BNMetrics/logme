@@ -4,9 +4,9 @@ from contextlib import contextmanager
 
 from typing import Union
 
-from ..config import read_config
+from bnmutils import ConfigParser
 from ..exceptions import LogmeError
-from ..utils import flatten_config_dict, ensure_dir
+from ..utils import ensure_dir
 
 
 @contextmanager
@@ -37,7 +37,7 @@ def validate_conf(name: str, ini_file_path: Union[str, Path]):
     :param name: name of the section to be added
     :param ini_file_path: path of the logme.ini file
     """
-    config = read_config(ini_file_path)
+    config = ConfigParser.from_files(ini_file_path)
 
     if config.has_section(name):
         raise LogmeError(f"'{name}' logging config already exists in config file: {ini_file_path}")
@@ -57,7 +57,7 @@ def get_color_tpl() -> dict:
         'DEBUG': 'GREEN',
     }
 
-    return {'colors': flatten_config_dict(color_config)}
+    return {'colors': color_config}
 
 
 def get_tpl(name: str, **kwargs: str) -> dict:
@@ -97,8 +97,7 @@ def get_tpl(name: str, **kwargs: str) -> dict:
 
     map_template(logger_template, kwargs)
 
-    # flatten config dictionary
-    config[name] = flatten_config_dict(logger_template)
+    config[name] = logger_template
 
     return dict(config)
 

@@ -12,6 +12,7 @@ version = ver_module_obj.__version__
 
 requires = [
     'click',
+    'bnmutils',
 ]
 
 # Install colorama on windows systems as an optional dependency

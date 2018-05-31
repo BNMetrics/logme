@@ -2,9 +2,9 @@ import click
 
 from pathlib import Path
 
-from ..config import read_config
+from bnmutils import ConfigParser
+
 from ..exceptions import LogmeError
-from ..utils import dict_to_config
 from ..__version__ import __version__
 
 from ._cli_utils import ensure_conf_exist, validate_conf, get_tpl, get_color_tpl
@@ -94,7 +94,7 @@ def init(ctx, project_root, override, mkdir, level, formatter, log_path):
                                     formatter=formatter, filename=log_path)
     conf_content.update(master_logging_config)
 
-    config = dict_to_config(conf_content)
+    config = ConfigParser.from_dict(conf_content)
 
     abs_path = Path(project_root).resolve()
     conf_location = abs_path.joinpath('logme.ini')
@@ -127,7 +127,7 @@ def add(ctx, project_root, name, level, formatter, log_path):
         validate_conf(name, logme_conf)
 
         conf_content = get_tpl(name, level=level, formatter=formatter, filename=log_path)
-        config = dict_to_config(conf_content)
+        config = ConfigParser.from_dict(conf_content)
 
         with logme_conf.open('a') as conf:
             config.write(conf)
@@ -153,7 +153,7 @@ def remove(ctx, name, project_root):
 
     with ensure_conf_exist(project_root) as logme_conf:
 
-        config = read_config(logme_conf)
+        config = ConfigParser.from_files(logme_conf)
         config.remove_section(name)
 
         with logme_conf.open('w+') as conf:

@@ -1,6 +1,6 @@
 import pytest
 
-from logme.config import get_logger_config
+from logme.utils import get_logger_config
 from logme.providers import LogProvider, ModuleLogger, LogmeLogger
 
 

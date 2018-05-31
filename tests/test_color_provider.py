@@ -3,7 +3,7 @@ import pytest
 import logging
 
 from logme.color_provider import Color, ColorFormatter
-from logme.config import get_color_config, get_config_content
+from logme.utils import get_color_config, get_config_content
 from logme.exceptions import InvalidColorConfig
 
 
@@ -42,17 +42,23 @@ def test_color_code_reset():
            == str(reset_with_kwargs2) == str(reset_bg)
 
 
-@pytest.mark.parametrize('parse_args',
+@pytest.mark.parametrize('parse_args, msg',
                          [
-                             pytest.param({'color': 'red', 'style': 'blah'}, id='invalid style passed'),
-                             pytest.param('bold', id='Passing in style as color'),
+                             pytest.param({'color': 'red', 'style': 'blah'},
+                                          "'blah' is not a valid style or background color",
+                                          id='invalid style passed'),
+                             pytest.param('bold',
+                                          "'bold' is not a valid color",
+                                          id='Passing in style as color'),
                          ])
-def test_color_code_raise(parse_args):
-    with pytest.raises(InvalidColorConfig):
+def test_color_code_raise(parse_args, msg):
+    with pytest.raises(InvalidColorConfig) as e_info:
         if isinstance(parse_args, dict):
             Color(**parse_args)
         else:
             Color(parse_args)
+
+    assert e_info.value.args[0] == msg
 
 
 def test_color_repr(capsys):
