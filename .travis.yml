@@ -5,8 +5,8 @@ python:
   - 3.6
 
 install:
-  - pip install pipenv
-  - pipenv install
+  - pip install pipenv --upgrade
+  - pipenv install --dev
 
 script:
   - pipenv run pytest --cov=logme --cov-report=xml -p no:warnings
