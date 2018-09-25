@@ -69,6 +69,15 @@ pretty nice right? :)
 
 To get started, head to the `quickstart <https://logme.readthedocs.io/en/latest/guide/quickstart.html>`_  page.
 
+Installation
+------------
+
+::
+
+    $ pipenv install logme
+    ✨🍰✨
+
+
 Documentation
 -------------
 
