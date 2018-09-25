@@ -1,6 +1,6 @@
-================================
-Logme - Python Logging Made Easy
-================================
+=================================
+Logme - Python Logging for Humans
+=================================
 
 .. image:: https://badge.fury.io/py/logme.svg
     :target: https://pypi.org/project/logme/

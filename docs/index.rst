@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-================================
-Logme - Python Logging Made Easy
-================================
+=================================
+Logme - Python Logging for Humans
+=================================
 
 .. image:: https://badge.fury.io/py/logme.svg
     :target: https://pypi.org/project/logme/
@@ -86,10 +86,11 @@ For all versioning changes, your ``logme.ini`` file should also be changed for t
 
 I. Upgrade to latest version of Logme:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ensure you tag the latest version of logme in your pipfile, then do
 
 .. code-block:: bash
 
-    $ pip3 install logme --upgrade
+    $ pipenv install logme
 
 
 II. Upgrade ``logme.ini`` using the following command:
