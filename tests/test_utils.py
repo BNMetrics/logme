@@ -134,6 +134,12 @@ def test_get_config_content_ver11():
     assert conf_content == expected
 
 
+def test_get_config_content_ver13():
+
+    conf_content = get_logger_config(__file__, 'ver13_config')
+    print(conf_content)
+
+
 def test_get_config_content_raise():
     with pytest.raises(NoSectionError):
         get_config_content(__file__, 'blah')

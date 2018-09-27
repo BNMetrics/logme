@@ -1,6 +1,7 @@
 import pytest
 
 import logging
+from datetime import datetime
 from pathlib import Path
 
 from logme.providers import LogmeLogger
@@ -102,6 +103,21 @@ class TestLogmeLogger:
 
         logger.info('info')
         logger.critical('critical')
+
+    def test_formatter_with_args(self, tmpdir):
+        config = get_logger_config(__file__, 'ver13_config')
+        config['file']['filename'] = tmpdir.join(config['file']['filename'])
+        logger = LogmeLogger('formatter_with_args', config=config)
+
+        logger.info('test info')
+
+        with open(config['file']['filename']) as log_File:
+            log_msg = log_File.readline()
+
+        timestamp = log_msg.split('-')[0].strip()
+
+        # This would raise an error if the time format was not correct
+        datetime.strptime(timestamp, '%Y/%m/%d')
 
     # ---------------------------------------------------------------------------
     # Test individual methods
