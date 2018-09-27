@@ -15,7 +15,7 @@ Logme - Python Logging for Humans
     :target: https://logme.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-Logme is a Python package that makes logging simple and robost. If you have found
+Logme is a Python package that makes logging simple and robust. If you have found
 logging in Python not so straight forward, download this package and give it a try! :)
 
 
