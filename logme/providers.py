@@ -276,6 +276,7 @@ class LogmeLogger:
         """
         args = self._get_formatter_args(formatter)
         formatter_object = formatter_class(**args)
+
         handler.setFormatter(formatter_object)
 
     def _handler_exist(self, handler: logging.Handler) -> bool:
@@ -400,7 +401,7 @@ class LogmeLogger:
         self._set_master_properties()
         self._set_handlers_from_conf()
 
-    def reconfig_handler(self, handler_name: str, level: Union[str, int]=None, formatter: str=None):
+    def reconfig_handler(self, handler_name: str, level: Union[str, int]=None, formatter: Union[str, dict]=None):
         """
         Reconfigure an existing handler's level and formatter.
         *This can be used to configure a handler for a specific logger to be different from the config in Logme.ini*
