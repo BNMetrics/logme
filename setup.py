@@ -33,7 +33,7 @@ setup(
     url='https://github.com/BNMetrics/logme',
     author_email='luna@bnmetrics.com',
     keywords=['logging', 'cli'],
-    python_requires='>=3',
+    python_requires='>=3.6',
     entry_points={'console_scripts': ['logme=logme:cli']},
     license='Apache 2.0',
 )

@@ -78,7 +78,7 @@ by directly passing in the configuration name with **config** argument.
 
     from your_project import logger
 
-    logger.reset_configuration(config='my_own_logger')
+    logger.reset_config(config='my_own_logger')
 
 
 
@@ -126,7 +126,7 @@ Configuration can also be passed in as a dictionary with **config_dict** argumen
             }
 
     }
-    logger.reset_configuration(config_dict=config)
+    logger.reset_config(config_dict=config)
 
 
 
