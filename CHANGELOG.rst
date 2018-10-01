@@ -2,6 +2,16 @@
 CHANGELOG
 =========
 
+1.3.1 (2018-10-01)
+==================
+
+**Bug Fixes**
+
+- Changed the `python_requires` from `>=3` to `>=3.6`, as many places supports f-string format notation.
+- Fixed a typo in readthedocs Advanced, `logme.reset_configuration` should be `logme.reset_config`
+
+
+
 1.3.0 (2018-09-28)
 ==================
 
@@ -126,6 +136,7 @@ CHANGELOG
 - Code clean up on providers.py
 
 
+
 1.0.5 (2018-04-24)
 ==================
 
@@ -148,6 +159,7 @@ CHANGELOG
 - Changed ``LogDecorator`` class to ``LogProvider`` as it is no longer a decorator
 - ``logme.log`` decorator used by function / class is now resolved from ``_get_logger_decorator()``
 - Added test cases for decorated class extension.
+
 
 
 1.0.4 (2018-04-18)
