@@ -6,7 +6,7 @@ python:
 
 install:
   - pip install pipenv --upgrade
-  - pipenv --support | xclip
+  - pipenv --support
   - pipenv install --dev
 
 script:
