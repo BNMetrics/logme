@@ -1,14 +1,12 @@
 language: python
 sudo: false
 
-env:
-  - PIPENV_IGNORE_VIRTUALENVS=1
-  
 python:
   - 3.6
 
 install:
   - pip install pipenv --upgrade
+  - pipenv --support | clip
   - pipenv install --dev
 
 script:
