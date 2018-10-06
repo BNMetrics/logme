@@ -6,7 +6,7 @@ python:
 
 install:
   - pip install pipenv --upgrade
-  - pipenv --support
+  - pipenv run pip install pip==18.0
   - pipenv install --dev
 
 script:
