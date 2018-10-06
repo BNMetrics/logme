@@ -1,6 +1,9 @@
 language: python
 sudo: false
 
+env:
+  - PIPENV_IGNORE_VIRTUALENVS=1
+  
 python:
   - 3.6
 
