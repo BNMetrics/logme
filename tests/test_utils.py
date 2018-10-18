@@ -157,3 +157,12 @@ def test_get_ini_file_path_raise(tmpdir, monkeypatch):
     target_dir = tmpdir.mkdir('test').mkdir('test_again')
     with pytest.raises(ValueError):
         get_ini_file_path(target_dir)
+
+
+def test_get_ini_file_path_script_raise(tmpdir, monkeypatch):
+    monkeypatch.setattr('pathlib.Path.root', tmpdir)
+    target = Path(tmpdir) / 'script.py'
+    open(target, 'a').close()
+
+    with pytest.raises(ValueError):
+        get_ini_file_path(target.name)
