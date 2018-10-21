@@ -7,7 +7,7 @@ CHANGELOG
 
 **Bug Fixes**
 
-- Fixed the issue with missing 'logme.ini' file caused `RecursionError: maximum recursion`: `issue ticket <https://github.com/BNMetrics/logme/issues/8>`.
+- Fixed the issue with missing 'logme.ini' file caused `RecursionError: maximum recursion`: `issue ticket <https://github.com/BNMetrics/logme/issues/8>`_.
 
 
 
