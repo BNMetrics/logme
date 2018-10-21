@@ -2,6 +2,15 @@
 CHANGELOG
 =========
 
+1.3.2 (2018-10-21)
+==================
+
+**Bug Fixes**
+
+- Fixed the issue with missing 'logme.ini' file caused `RecursionError: maximum recursion`: `issue ticket <https://github.com/BNMetrics/logme/issues/8>`.
+
+
+
 1.3.1 (2018-10-01)
 ==================
 

@@ -1,8 +1,0 @@
-color:
-  CRITICAL:
-    color: white
-    style: Bold
-    bg: red
-  ERROR: PURPLE
-  WARNING: YELLOW
-  INFO: GREEN
