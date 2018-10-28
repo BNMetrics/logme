@@ -2,6 +2,57 @@
 CHANGELOG
 =========
 
+1.3.2 (2018-10-21)
+==================
+
+**Bug Fixes**
+
+- Fixed the issue with missing 'logme.ini' file caused `RecursionError: maximum recursion`: `issue ticket <https://github.com/BNMetrics/logme/issues/8>`_.
+
+
+
+1.3.1 (2018-10-01)
+==================
+
+**Bug Fixes**
+
+- Changed the `python_requires` from `>=3` to `>=3.6`, as many places supports f-string format notation.
+- Fixed a typo in readthedocs Advanced, `logme.reset_configuration` should be `logme.reset_config`
+
+
+
+1.3.0 (2018-09-28)
+==================
+
+**Improvement**
+
+- Allowing configuration of `datefmt`, and `style` for master level `formatters` in logme.ini.
+    - This change does not break the previous version, you can still specify only the `fmt`
+    - Does not apply to `logme init` or `logme add {config_name}` command for generate automatic
+    - Default `style` will still be `{` if none specified
+- example:
+
+.. code-block:: ini
+
+    [my_config]
+    level = DEBUG
+    formatter =
+        fmt: {asctime} - {name} - {levelname} - {message}
+        datefmt: %Y/%m/%d
+        style: {
+    stream =
+        type: StreamHandler
+        active: True
+        level: DEBUG
+    file =
+        type: FileHandler
+        active: True
+        level: DEBUG
+        formatter: {name} :: {funcName} :: {levelname} :: {message}
+        filename: mylogpath/foo.log
+
+
+
 1.2.1 (2018-06-01)
 ==================
 
@@ -94,6 +145,7 @@ CHANGELOG
 - Code clean up on providers.py
 
 
+
 1.0.5 (2018-04-24)
 ==================
 
@@ -116,6 +168,7 @@ CHANGELOG
 - Changed ``LogDecorator`` class to ``LogProvider`` as it is no longer a decorator
 - ``logme.log`` decorator used by function / class is now resolved from ``_get_logger_decorator()``
 - Added test cases for decorated class extension.
+
 
 
 1.0.4 (2018-04-18)

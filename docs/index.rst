@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-================================
-Logme - Python Logging Made Easy
-================================
+=================================
+Logme - Python Logging for Humans
+=================================
 
 .. image:: https://badge.fury.io/py/logme.svg
     :target: https://pypi.org/project/logme/
@@ -20,22 +20,52 @@ Logme - Python Logging Made Easy
    :maxdepth: 2
    :caption: Contents:
 
-Logme is a Python package that makes logging simple and robost. If you have found
+Logme is a Python package that makes logging simple and robust. If you have found
 logging in Python not so straight forward, download this package and give it a try! :)
 
 
-v1.2.0 Updates
---------------
+V1.3.0 Updates
+---------------------
 _____________________________________________________________________
 
-**logme** package now supports color and styling output in the terminal!
+``logme.ini`` file now supports custome ``datefmt`` and ``style``! Thanks to `@afunTW <https://github.com/afunTW>`_ suggestion! :)
+
+Here is an example of how you can specify these parameters in your ``logme.ini`` configuration:
+
+.. code-block:: ini
+
+    [my_config]
+    level = DEBUG
+    formatter =
+        fmt: {asctime} - {name} - {levelname} - {message}
+        datefmt: %Y/%m/%d
+        style: {
+    stream =
+        type: StreamHandler
+        active: True
+        level: DEBUG
+    file =
+        type: FileHandler
+        active: True
+        level: DEBUG
+        formatter: {name} :: {funcName} :: {levelname} :: {message}
+        filename: mylogpath/foo.log
+
+.. note::  Only top level `master_formatter` supports parameters as shown above, individual handler formatter will not.
+
+
+Terminal Color Output
+---------------------
+_____________________________________________________________________
+
+**logme** supports color and styling output in the terminal!
 
 The colors and style is **customizable** in ``logme.ini``, here is a screenshot of how it looks like in the terminal:
 
 
 .. image:: _images/demo_color.png
 
-To use color output in logme, make sure your logme package and ``logme.ini`` is :ref:`up-to-date <upgrading>`.
+To use color output in logme, make sure your logme package and ``logme.ini`` is :ref:`up-to-date <upgrading>` if you are using a version before 1.2.0.
 
 Check the configuration details :ref:`here <colors>`.
 
@@ -86,10 +116,11 @@ For all versioning changes, your ``logme.ini`` file should also be changed for t
 
 I. Upgrade to latest version of Logme:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ensure you tag the latest version of logme in your pipfile, then do
 
 .. code-block:: bash
 
-    $ pip3 install logme --upgrade
+    $ pipenv install logme
 
 
 II. Upgrade ``logme.ini`` using the following command:

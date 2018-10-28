@@ -214,7 +214,7 @@ class LogmeLogger:
         return handler_type
 
     def _config_handler(self, handler: logging.Handler, level: Union[str, int]=None,
-                        formatter: str=None, set_from_master: bool=False):
+                        formatter: Union[str, dict]=None, set_from_master: bool=False):
 
         """
         Configure the handler's level and formatter
@@ -241,11 +241,9 @@ class LogmeLogger:
             formatter_class = logging.Formatter
 
         if formatter:
-            formatter_object = formatter_class(formatter, style='{')
-            handler.setFormatter(formatter_object)
+            self._set_formatter(handler, formatter_class, formatter)
         elif set_from_master:
-            formatter_object = formatter_class(self.master_formatter, style='{')
-            handler.setFormatter(formatter_object)
+            self._set_formatter(handler, formatter_class, self.master_formatter)
 
     def _get_level(self, level: Union[str, int]) -> int:
         """
@@ -258,6 +256,28 @@ class LogmeLogger:
                 raise InvalidOption(f"'{level}' is not a valid level option")
         if isinstance(level, int):  # logging.ERROR is also type of int
             return level
+
+    def _get_formatter_args(self, formatter: Union[str, dict]) -> dict:
+        """
+        Get argument to be passed to logging.Formatter
+        """
+        if isinstance(formatter, dict):
+            return formatter
+        elif isinstance(formatter, str):
+            return {'fmt': formatter, 'style': '{'}
+
+        raise ValueError(f"Invalid formatter type: '{type(formatter)}', "
+                         f"formatter must be passed as either dict or string")
+
+    def _set_formatter(self, handler: logging.Handler, formatter_class: type,
+                       formatter: Union[str, dict]):
+        """
+        Set the formatter with the handler and formatter class specified
+        """
+        args = self._get_formatter_args(formatter)
+        formatter_object = formatter_class(**args)
+
+        handler.setFormatter(formatter_object)
 
     def _handler_exist(self, handler: logging.Handler) -> bool:
         """
@@ -275,8 +295,8 @@ class LogmeLogger:
 
         return False
 
-    def add_handler(self, handler_name: str, handler_type: str, formatter: str=None, level: Union[str, int]=None,
-                    allow_duplicate: bool=False, skip_duplicate: bool=False, **kwargs):
+    def add_handler(self, handler_name: str, handler_type: str, formatter: Union[str, dict]=None,
+                    level: Union[str, int]=None, allow_duplicate: bool=False, skip_duplicate: bool=False, **kwargs):
         """
         Add the handler to self.logger on adhoc basis
 
@@ -381,7 +401,7 @@ class LogmeLogger:
         self._set_master_properties()
         self._set_handlers_from_conf()
 
-    def reconfig_handler(self, handler_name: str, level: Union[str, int]=None, formatter: str=None):
+    def reconfig_handler(self, handler_name: str, level: Union[str, int]=None, formatter: Union[str, dict]=None):
         """
         Reconfigure an existing handler's level and formatter.
         *This can be used to configure a handler for a specific logger to be different from the config in Logme.ini*

@@ -107,12 +107,13 @@ def get_ini_file_path(caller_file_path: Union[str, Path]) -> Path:
 
     :return: Path object of the logme.ini
     """
-    conf_path = Path(caller_file_path).parent / 'logme.ini'
 
-    if caller_file_path in [Path(Path(caller_file_path).root).resolve(),
-                            Path(caller_file_path).home().resolve()]:
+    caller_file_path = Path(caller_file_path).resolve()
+    if caller_file_path in [Path(caller_file_path.root).resolve(),
+                            caller_file_path.home().resolve()]:
         raise ValueError(f"logme.ini does not exist, please use 'logme init' command in your project root.")
 
+    conf_path = caller_file_path.parent / 'logme.ini'
     if not conf_path.exists():
         return get_ini_file_path(Path(caller_file_path).parent)
     else:

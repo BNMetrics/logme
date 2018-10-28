@@ -1,6 +1,6 @@
-================================
-Logme - Python Logging Made Easy
-================================
+=================================
+Logme - Python Logging for Humans
+=================================
 
 .. image:: https://badge.fury.io/py/logme.svg
     :target: https://pypi.org/project/logme/
@@ -15,21 +15,51 @@ Logme - Python Logging Made Easy
     :target: https://logme.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
-Logme is a Python package that makes logging simple and robost. If you have found
+Logme is a Python package that makes logging simple and robust. If you have found
 logging in Python not so straight forward, download this package and give it a try! :)
 
 
-v1.2.0 Updates
---------------
 
-**logme** package now supports color and styling output in the terminal!
+V1.3.0 Updates
+---------------------
+``logme.ini`` file now supports custom ``datefmt`` and ``style``! Thanks to `@afunTW <https://github.com/afunTW>`_ suggestion! :)
+
+Here is an example of how you can specify these parameters in your ``logme.ini`` configuration:
+
+.. code-block:: ini
+
+    [my_config]
+    level = DEBUG
+    formatter =
+        fmt: {asctime} - {name} - {levelname} - {message}
+        datefmt: %Y/%m/%d
+        style: {
+    stream =
+        type: StreamHandler
+        active: True
+        level: DEBUG
+    file =
+        type: FileHandler
+        active: True
+        level: DEBUG
+        formatter: {name} :: {funcName} :: {levelname} :: {message}
+        filename: mylogpath/foo.log
+
+Note: Only top level ``master_formatter`` supports parameters as shown above, individual handler formatter will not.
+
+
+
+Terminal Color Output
+---------------------
+
+**logme** supports color and styling output in the terminal!
 
 The colors and style is **customizable** in ``logme.ini``, here is a screenshot of how it looks like in the terminal:
 
 
 .. image:: http://logme.readthedocs.io/en/latest/_images/demo_color.png
 
-To use color output in logme, make sure your logme package and ``logme.ini`` is `up-to-date <https://logme.readthedocs.io/en/latest/?badge=latest#upgrading>`_.
+To use color output in logme, make sure your logme package and ``logme.ini`` is `up-to-date <https://logme.readthedocs.io/en/latest/?badge=latest#upgrading>`_ if you are using a version before 1.2.0.
 
 Check the configuration details `here <https://logme.readthedocs.io/en/latest/guide/quickstart.html#colors>`_.
 
@@ -71,11 +101,11 @@ To get started, head to the `quickstart <https://logme.readthedocs.io/en/latest/
 
 Installing Logme
 ----------------
-
 ::
 
     $ pipenv install logme
     ✨🍰✨
+
 
 Documentation
 -------------

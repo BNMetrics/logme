@@ -78,7 +78,7 @@ by directly passing in the configuration name with **config** argument.
 
     from your_project import logger
 
-    logger.reset_configuration(config='my_own_logger')
+    logger.reset_config(config='my_own_logger')
 
 
 
@@ -126,7 +126,7 @@ Configuration can also be passed in as a dictionary with **config_dict** argumen
             }
 
     }
-    logger.reset_configuration(config_dict=config)
+    logger.reset_config(config_dict=config)
 
 
 
@@ -230,7 +230,8 @@ _____________________________________________________________________
 When you make an ``pip`` installable package, you will need to ensure that ``logme.ini`` is installed alongside your package code
 to python's ``site-packages/`` directory.
 
-There are two options to make this happen, and for both of them you will need to include ``logme.ini`` in your **package root** (*where your source code is*) directory
+There are three options to make this happen. It based on where you'd like to place your ``logme.ini``. With the first
+two options, you will need to include ``logme.ini`` in your **package root** (*where your source code is*) directory
 instead of project root(*the same directory as your* ``setup.py``).
 
 It would look like this::
@@ -243,10 +244,24 @@ It would look like this::
         setup.py
 
 
-I. Using package_data in setuptool
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is the simplest way to include non-python files in your package, you only need to include  ``package_data`` argument in your ``setup.py``, like so:
+While with the :ref:`third option  <pkgroot>`, you can have your ``logme.ini`` file in your **project root**(*the same directory as your* ``setup.py``),
+like so::
+
+    myproject_root/
+        mypackage_root/
+            __init__.py
+            myfile.py
+        setup.py
+        logme.ini
+
+
+
+I. Using package_data in setuptool with logme.ini within package root
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the simplest way to include non-python files in your package, you only need to include  ``package_data``
+argument in your ``setup.py``. like so:
 
 .. code-block:: python
 
@@ -263,7 +278,8 @@ This is the simplest way to include non-python files in your package, you only n
     )
 
 
-I. Using ``MANIFEST.in``
+
+II. Using ``MANIFEST.in``
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can also utilizing ``MANIFEST.in`` to help you include ``logme.ini``. With this option, you will need to create a ``MANIFEST.in`` file in your **project root**.
@@ -281,6 +297,46 @@ Now in the ``setup.py`` you will need to add an additional argument: ``include_p
         name='myproject',
         packages=find_packages(exclude=['tests*']),
         include_package_data=True,
+        version=1.0,
+        description='My awesome package that is using logme',
+        author='Jane doe',
+        url='https://www.example.com',
+        author_email='jane@example.com',
+        license='Apache 2.0',
+    )
+
+
+.. _pkgroot:
+
+
+II. Using package_data in setuptool with logme.ini within project root
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With the first two options, you might say, "what if I really want my logme.ini to be in the top level directory in my repo?"
+Don't worry, there is a way, and it is also achieved with ``package_data`` in your ``setup.py``! :)
+
+we will be using `pathlib` and `shutil` to make this happen:
+
+.. code-block:: python
+
+    import shutil
+    from pathlib import Path
+
+    # Get the path for the current
+    current_dir = Path(__file__).parent
+    logme_ini = current_dir / "logme.ini"
+
+    # Destination of logme.ini in installed package
+    dest_file = current_dir / "mypackage_root/logme.ini"
+
+    # Copy the top level logme.ini to destination package dir
+    shutil.copy(str(current_dir / "logme.ini"),
+                str(dest_file))
+
+    setup(
+        name='myproject',
+        packages=find_packages(exclude=['tests*']),
+        package_data={'': [dest_file]},  # Include the
         version=1.0,
         description='My awesome package that is using logme',
         author='Jane doe',

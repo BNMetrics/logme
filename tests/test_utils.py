@@ -134,6 +134,15 @@ def test_get_config_content_ver11():
     assert conf_content == expected
 
 
+def test_get_config_content_ver13():
+    conf_content = get_logger_config(__file__, 'ver13_config')
+    assert conf_content['formatter'] == {
+        'fmt': '{asctime} - {name} - {levelname} - {message}',
+        'datefmt': '%Y/%m/%d',
+        'style': '{'
+    }
+
+
 def test_get_config_content_raise():
     with pytest.raises(NoSectionError):
         get_config_content(__file__, 'blah')
@@ -151,3 +160,12 @@ def test_get_ini_file_path_raise(tmpdir, monkeypatch):
     target_dir = tmpdir.mkdir('test').mkdir('test_again')
     with pytest.raises(ValueError):
         get_ini_file_path(target_dir)
+
+
+def test_get_ini_file_path_script_raise(tmpdir, monkeypatch):
+    monkeypatch.setattr('pathlib.Path.root', tmpdir)
+    target = Path(tmpdir) / 'script.py'
+    open(target, 'a').close()
+
+    with pytest.raises(ValueError):
+        get_ini_file_path(target.name)

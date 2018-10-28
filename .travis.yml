@@ -5,10 +5,12 @@ python:
   - 3.6
 
 install:
-  - pip install -r requirements.txt -U
+  - pip install pipenv --upgrade
+  - pipenv run pip install pip==18.0
+  - pipenv install --dev
 
 script:
-  - pytest --cov=logme --cov-report=xml
+  - pipenv run pytest --cov=logme --cov-report=xml -p no:warnings
 
 
 after_success:

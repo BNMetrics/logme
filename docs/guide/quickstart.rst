@@ -10,10 +10,10 @@ _____________________________________________________________________
 
 To install the latest version of logme via **pip**:
 
-.. code-block:: bash
+::
 
-    $ pip3 install logme
-
+    $ pipenv install logme
+    ✨🍰✨
 
 Configurations
 --------------

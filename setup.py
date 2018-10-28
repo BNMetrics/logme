@@ -5,10 +5,8 @@ from importlib.machinery import SourceFileLoader
 
 from setuptools import setup, find_packages
 
-ver_module_path = Path(__file__).parent / Path('logme/__version__.py')
-ver_module_obj = SourceFileLoader('logme', str(ver_module_path)).load_module()
-
-version = ver_module_obj.__version__
+version_path = Path(__file__).parent / Path('logme/__version__.py')
+version = SourceFileLoader('logme', str(version_path)).load_module().__version__
 
 requires = [
     'click',
@@ -33,7 +31,7 @@ setup(
     url='https://github.com/BNMetrics/logme',
     author_email='luna@bnmetrics.com',
     keywords=['logging', 'cli'],
-    python_requires='>=3',
+    python_requires='>=3.6',
     entry_points={'console_scripts': ['logme=logme:cli']},
     license='Apache 2.0',
 )
