@@ -99,9 +99,8 @@ pretty nice right? :)
 
 To get started, head to the `quickstart <https://logme.readthedocs.io/en/latest/guide/quickstart.html>`_  page.
 
-Installation
-------------
-
+Installing Logme
+----------------
 ::
 
     $ pipenv install logme
