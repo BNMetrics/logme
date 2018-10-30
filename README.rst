@@ -22,7 +22,7 @@ logging in Python not so straight forward, download this package and give it a t
 
 V1.3.0 Updates
 ---------------------
-``logme.ini`` file now supports custome ``datefmt`` and ``style``! Thanks to `@afunTW <https://github.com/afunTW>`_ suggestion! :)
+``logme.ini`` file now supports custom ``datefmt`` and ``style``! Thanks to `@afunTW <https://github.com/afunTW>`_ suggestion! :)
 
 Here is an example of how you can specify these parameters in your ``logme.ini`` configuration:
 
@@ -99,9 +99,8 @@ pretty nice right? :)
 
 To get started, head to the `quickstart <https://logme.readthedocs.io/en/latest/guide/quickstart.html>`_  page.
 
-Installation
-------------
-
+Installing Logme
+----------------
 ::
 
     $ pipenv install logme
