@@ -28,7 +28,7 @@ V1.3.0 Updates
 ---------------------
 _____________________________________________________________________
 
-``logme.ini`` file now supports custome ``datefmt`` and ``style``! Thanks to `@afunTW <https://github.com/afunTW>`_ suggestion! :)
+``logme.ini`` file now supports custom ``datefmt`` and ``style``! Thanks to `@afunTW <https://github.com/afunTW>`_ suggestion! :)
 
 Here is an example of how you can specify these parameters in your ``logme.ini`` configuration:
 
